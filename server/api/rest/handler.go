@@ -6,14 +6,15 @@ import (
 	"log"
 	"net/http"
 	"scoreboard/util/json"
-	"strconv"
 )
 
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("Received %s request from %s", r.Method, r.RemoteAddr))
 	switch r.Method {
 	case "GET":
-		Ok(w, strconv.Itoa(5))
+		body := make(map[string]interface{})
+		body["count"] = 6
+		Ok(w, body)
 	case "POST":
 		bytes, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -21,7 +22,7 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 		}
 		body, _ := json.JsonToMap(bytes)
 		log.Println(body)
-		Ok(w, "Message received")
+		Ok(w, body)
 	default:
 		NotAllowed(w)
 	}
