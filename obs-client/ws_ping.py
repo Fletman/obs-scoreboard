@@ -1,9 +1,10 @@
-import websocket
+import json
 import _thread
 import time
+import websocket
 
 def on_message(ws, msg):
-    print(msg)
+    print(json.loads(msg))
 
 def on_error(ws, error):
     print(error)
