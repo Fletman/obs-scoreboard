@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,14 +10,15 @@ import (
 )
 
 func main() {
-	var port int = 8080
+	var port = flag.Int("p", 8080, "Port to run server on")
+	flag.Parse()
 
 	http.HandleFunc("/live", socket.HandleConnection)
 
-	http.HandleFunc("/scores", rest.HandleRequest)
+	http.HandleFunc("/scores/", rest.HandleRequest)
 
-	log.Println(fmt.Sprintf("Starting server on port %d", port))
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	log.Println(fmt.Sprintf("Starting server on port %d", *port))
+	err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 	if err != nil {
 		log.Fatal(err)
 	}

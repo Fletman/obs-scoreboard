@@ -45,26 +45,37 @@ func errRes(w http.ResponseWriter, status int, msg string) (err error) {
 	return err
 }
 
+// HTTP 200 OK response
 func Ok(w http.ResponseWriter, body map[string]interface{}) (err error) {
 	err = res(w, 200, body)
 	return
 }
 
+// HTTP 202 Accepted Response
 func Accepted(w http.ResponseWriter, body map[string]interface{}) (err error) {
 	err = res(w, 202, body)
 	return
 }
 
+// HTTP 400 Bad Request Response
 func BadRequest(w http.ResponseWriter, msg string) (err error) {
 	err = errRes(w, 400, msg)
 	return
 }
 
-func NotAllowed(w http.ResponseWriter) (err error) {
+// HTTP 404 Not Found Response
+func NotFound(w http.ResponseWriter, msg string) (err error) {
+	err = errRes(w, 400, msg)
+	return
+}
+
+// HTTP 405 Method Not Allowed Response
+func MethodNotAllowed(w http.ResponseWriter) (err error) {
 	err = errRes(w, 405, "Method Not Allowed")
 	return
 }
 
+// HTTP 500 Internal Server Error Response
 func InternalServerError(w http.ResponseWriter) (err error) {
 	err = errRes(w, 500, "An Internal Server Error has occurred")
 	return

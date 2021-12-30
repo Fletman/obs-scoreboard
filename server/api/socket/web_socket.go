@@ -16,6 +16,7 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+// Handler for persistent connections listening for score updates
 func HandleConnection(w http.ResponseWriter, r *http.Request) {
 	log.Println("Establishing new websocket connection")
 	conn, err := upgrader.Upgrade(w, r, nil) // upgrade http connection to websocket
