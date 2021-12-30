@@ -7,14 +7,18 @@ import (
 	"net/http"
 	"scoreboard/api/rest"
 	"scoreboard/api/socket"
+	"scoreboard/data"
 )
 
 func main() {
 	var port = flag.Int("p", 8080, "Port to run server on")
 	flag.Parse()
 
+	data.InitScores()
+
 	http.HandleFunc("/live", socket.HandleConnection)
 
+	http.HandleFunc("/scores", rest.HandleRequest)
 	http.HandleFunc("/scores/", rest.HandleRequest)
 
 	log.Println(fmt.Sprintf("Starting server on port %d", *port))

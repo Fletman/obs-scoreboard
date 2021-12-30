@@ -65,7 +65,7 @@ func BadRequest(w http.ResponseWriter, msg string) (err error) {
 
 // HTTP 404 Not Found Response
 func NotFound(w http.ResponseWriter, msg string) (err error) {
-	err = errRes(w, 400, msg)
+	err = errRes(w, 404, msg)
 	return
 }
 

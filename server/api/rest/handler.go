@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"scoreboard/data"
 	"scoreboard/util/json"
 	"strings"
 )
@@ -50,16 +51,19 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		body := make(map[string]interface{})
-		if _, ok := path_params["score-id"]; ok {
+		if score_id, ok := path_params["score-id"]; ok {
 			// get specific scoreboard
-			for k, v := range path_params {
-				body[k] = v
+			if scoreboard, exists := data.GetScoreBoard(score_id); exists {
+				Ok(w, scoreboard)
+			} else {
+				NotFound(w, fmt.Sprintf("No scoreboard found for ID: %s", score_id))
 			}
+
 		} else {
 			// list all scoreboards
 			body["scoreboards"] = []string{"score_one", "score2", "score3"}
+			Ok(w, body)
 		}
-		Ok(w, body)
 	case "POST":
 		bytes, err := ioutil.ReadAll(r.Body)
 		if err != nil {
