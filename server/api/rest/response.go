@@ -1,4 +1,5 @@
-package response
+package rest
+
 import (
 	"encoding/json"
 	"log"
@@ -7,8 +8,8 @@ import (
 )
 
 type res_log struct {
-	Status int
-	Message string
+	Status    int
+	Message   string
 	Timestamp string
 }
 
@@ -16,11 +17,11 @@ type res_msg struct {
 	Message string
 }
 
-func res(w http.ResponseWriter, status int, msg string) (error) {
+func res(w http.ResponseWriter, status int, msg string) error {
 	res_data, err := json.MarshalIndent(
-		res_log {
-			Status: status,
-			Message: msg,
+		res_log{
+			Status:    status,
+			Message:   msg,
 			Timestamp: time.Now().UTC().Format("2006-01-02 15:04:05 UTC"),
 		},
 		"",
@@ -29,7 +30,7 @@ func res(w http.ResponseWriter, status int, msg string) (error) {
 	if err != nil {
 		return err
 	}
-	log.Printf(string(res_data))
+	log.Println(string(res_data))
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

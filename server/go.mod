@@ -1,4 +1,4 @@
-module scoreboard_server
+module scoreboard
 
 go 1.15
 
