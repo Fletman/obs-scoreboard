@@ -28,7 +28,7 @@ func getPathParams(url string, template string) (path_params map[string]string, 
 	for i, part := range template_parts {
 		param_name := strings.TrimSuffix(strings.TrimPrefix(part, "{"), "}")
 		if part_count > i {
-			if param_val := strings.TrimSpace(path_parts[i]); len(param_val) > 0 {
+			if param_val := strings.TrimSpace(path_parts[i]); len(param_val) > 0 && param_regex.MatchString(part) {
 				path_params[param_name] = param_val
 			}
 		}
@@ -44,15 +44,17 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	path_params, err := getPathParams(r.URL.Path, "/scores/{score-id}")
 	if err != nil {
 		InternalServerError(w)
+		return
 	}
 
 	switch r.Method {
 	case "GET":
 		body := make(map[string]interface{})
-		if score_id, ok := path_params["score-id"]; ok {
+		if _, ok := path_params["score-id"]; ok {
 			// get specific scoreboard
-			body[score_id] = score_id
-
+			for k, v := range path_params {
+				body[k] = v
+			}
 		} else {
 			// list all scoreboards
 			body["scoreboards"] = []string{"score_one", "score2", "score3"}
