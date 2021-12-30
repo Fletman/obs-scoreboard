@@ -37,11 +37,11 @@ func HandleConnection(w http.ResponseWriter, r *http.Request) {
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
-			log.Println(err)
+			log.Println(fmt.Sprintf("%s disconnected from server", client_id))
 			delete(clients, client_id)
 			return
 		}
-		log.Println(fmt.Sprintf("Received message from %s: %s", client_id, string(msg)))
+		log.Println(fmt.Sprintf("Message from %s: %s", client_id, string(msg)))
 		locks.Broadcast_mutex.Lock()
 		for _, c := range clients {
 			c.WriteJSON(string(msg))
