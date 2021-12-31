@@ -16,6 +16,14 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+func Broadcast(body interface{}) {
+	locks.Broadcast_mutex.Lock()
+	for _, c := range clients {
+		c.WriteJSON(body)
+	}
+	locks.Broadcast_mutex.Unlock()
+}
+
 // Handler for persistent connections listening for score updates
 func HandleConnection(w http.ResponseWriter, r *http.Request) {
 	log.Println("Establishing new websocket connection")
@@ -43,10 +51,6 @@ func HandleConnection(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Println(fmt.Sprintf("Message from %s: %s", client_id, string(msg)))
-		locks.Broadcast_mutex.Lock()
-		for _, c := range clients {
-			c.WriteJSON(string(msg))
-		}
-		locks.Broadcast_mutex.Unlock()
+
 	}
 }

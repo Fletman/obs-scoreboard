@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"scoreboard/api/socket"
 	"scoreboard/data"
 	"strings"
 )
@@ -58,7 +59,8 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		if match_id, ok := path_params["match-id"]; ok {
 			// get specific match scoreboard
-			if scoreboard, exists := data.GetScoreBoard(match_id); exists {
+			if scoreboard, featured, exists := data.GetScoreBoard(match_id); exists {
+				fmt.Println(featured)
 				Ok(w, scoreboard)
 			} else {
 				NotFound(w, fmt.Sprintf("No scoreboard found for ID: %s", match_id))
@@ -84,7 +86,10 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 				BadRequest(w, "Field 'teams' is missing or incorrectly formatted")
 			} else {
 				data.SetScoreBoard(match_id, body.Match, body.Featured)
-				Ok(w, map[string]interface{}{"match-id": match_id, "match": body.Match})
+				sb, featured, _ := data.GetScoreBoard(match_id)
+				result := map[string]interface{}{"match-id": match_id, "match": sb, "featured": featured}
+				Ok(w, result)
+				socket.Broadcast(result)
 			}
 		} else {
 			BadRequest(w, "No match-id provided in path")
@@ -92,7 +97,7 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	case "DELETE":
 		if match_id, ok := path_params["match-id"]; ok {
 			// delete specified match scoreboard
-			if _, exists := data.GetScoreBoard(match_id); exists {
+			if _, _, exists := data.GetScoreBoard(match_id); exists {
 				data.DeleteScoreBoard(match_id)
 				Ok(w, map[string]string{"message": fmt.Sprintf("Successfully deleted scoreboard ID: %s", match_id)})
 			} else {
