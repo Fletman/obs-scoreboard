@@ -17,9 +17,8 @@ func main() {
 	data.InitScores()
 
 	http.HandleFunc("/live", socket.HandleConnection)
-
-	http.HandleFunc("/scores", rest.HandleRequest)
-	http.HandleFunc("/scores/", rest.HandleRequest)
+	http.HandleFunc("/matches", rest.HandleRequest)
+	http.HandleFunc("/matches/", rest.HandleRequest)
 
 	log.Println(fmt.Sprintf("Starting server on port %d", *port))
 	err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)

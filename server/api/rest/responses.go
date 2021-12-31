@@ -9,11 +9,11 @@ import (
 
 type res_log struct {
 	Status    int
-	Body      map[string]interface{}
+	Body      interface{}
 	Timestamp string
 }
 
-func res(w http.ResponseWriter, status int, body map[string]interface{}) error {
+func res(w http.ResponseWriter, status int, body interface{}) error {
 	log_msg, err := json.MarshalIndent(
 		res_log{
 			Status:    status,
@@ -39,20 +39,20 @@ func res(w http.ResponseWriter, status int, body map[string]interface{}) error {
 }
 
 func errRes(w http.ResponseWriter, status int, msg string) (err error) {
-	var body = make(map[string]interface{})
+	var body = make(map[string]string)
 	body["message"] = msg
 	err = res(w, status, body)
 	return err
 }
 
 // HTTP 200 OK response
-func Ok(w http.ResponseWriter, body map[string]interface{}) (err error) {
+func Ok(w http.ResponseWriter, body interface{}) (err error) {
 	err = res(w, 200, body)
 	return
 }
 
 // HTTP 202 Accepted Response
-func Accepted(w http.ResponseWriter, body map[string]interface{}) (err error) {
+func Accepted(w http.ResponseWriter, body interface{}) (err error) {
 	err = res(w, 202, body)
 	return
 }

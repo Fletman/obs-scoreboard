@@ -1,35 +1,32 @@
 package data
 
+// Match status enums
+var Status_Enum_Set map[string]bool = map[string]bool{"Pending": true, "In Progress": true, "Completed": true}
+
+// Struct representing score of an individual team
 type Score struct {
-	TeamName string
-	Score    float32
+	Name  string  `json:"name"`
+	Score float32 `json:"score"`
 }
 
-type Scoreboard struct {
-	Teams map[string]Score
+// Struct containing all competing teams, their scores, and status of the game
+type Match struct {
+	Teams  []Score `json:"teams"`
+	Status string  `json:"status"`
 }
 
+// Struct tracking all matches
 type ScoreList struct {
-	Featured    *Scoreboard
-	Scoreboards map[string]Scoreboard
+	Featured    *Match            `json:"featured"`
+	Scoreboards map[string]*Match `json:"matches"`
 }
 
 var scores *ScoreList
 
-func scoreboardToMap(s Scoreboard) map[string]interface{} {
-	m := make(map[string]interface{})
-	for _, t := range s.Teams {
-		team := make(map[string]interface{})
-		team["team-name"] = t.TeamName
-		team["score"] = t.Score
-		m[t.TeamName] = team
-	}
-	return m
-}
-
 // Initialize data
 func InitScores() {
 	scores = new(ScoreList)
+	scores.Scoreboards = make(map[string]*Match)
 }
 
 // Return list of all current scoreboards and featured scoreboard
@@ -38,16 +35,24 @@ func GetScoreList() ScoreList {
 }
 
 // Return a scoreboard given its ID
-func GetScoreBoard(score_id string) (map[string]interface{}, bool) {
-	if scoreboard, ok := scores.Scoreboards[score_id]; ok {
-		return scoreboardToMap(scoreboard), true
-	} else {
-		var sb map[string]interface{}
-		return sb, false
+func GetScoreBoard(match_id string) (sb Match, ok bool) {
+	scb, ok := scores.Scoreboards[match_id]
+	if ok {
+		sb = *scb
+	}
+	return
+}
+
+// Create/Update a scoreboard given its ID
+func SetScoreBoard(match_id string, new_board Match, featured bool) {
+	scores.Scoreboards[match_id] = &new_board
+	if featured {
+		scores.Featured = scores.Scoreboards[match_id]
 	}
 }
 
-// Update a scoreboard given its ID
-func SetScoreBoard(score_id string, new_board Scoreboard) {
-	scores.Scoreboards[score_id] = new_board
+// Remove a scoreboard given its ID
+func DeleteScoreBoard(match_id string) {
+	delete(scores.Scoreboards, match_id)
+	scores.Featured = nil
 }
