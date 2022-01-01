@@ -29,6 +29,7 @@ func res(w http.ResponseWriter, status int, body interface{}) error {
 	log.Println(string(log_msg))
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(status)
 	output, err := json.Marshal(body)
 	if err != nil {

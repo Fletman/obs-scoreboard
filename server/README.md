@@ -118,6 +118,7 @@ Retrieve a specific scoreboard
 ```json
 200 OK
 {
+    "completed": <boolean>,
     "teams": [
         {
             "name": <string>,
