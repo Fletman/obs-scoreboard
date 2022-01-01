@@ -18,10 +18,10 @@ var upgrader = websocket.Upgrader{
 
 func Broadcast(body interface{}) {
 	locks.Broadcast_mutex.Lock()
+	defer locks.Broadcast_mutex.Unlock()
 	for _, c := range clients {
 		c.WriteJSON(body)
 	}
-	locks.Broadcast_mutex.Unlock()
 }
 
 // Handler for persistent connections listening for score updates

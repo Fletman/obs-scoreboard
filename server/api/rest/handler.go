@@ -3,6 +3,7 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -10,15 +11,44 @@ import (
 	"scoreboard/api/socket"
 	"scoreboard/data"
 	"strings"
+
+	"github.com/go-playground/validator/v10"
 )
 
-type putRequest struct {
-	Match    data.Match
-	Status   string
-	Featured bool
-}
-
 var param_regex *regexp.Regexp
+
+var v *validator.Validate = validator.New()
+
+func validatePut(b io.ReadCloser) (body data.Scoreboard, err_msg string) {
+	bytes, err := ioutil.ReadAll(b)
+	if err != nil {
+		err_msg = "Invalid JSON format"
+		return
+	}
+
+	body = data.Scoreboard{}
+	err = json.Unmarshal(bytes, &body)
+	if err != nil {
+		err_msg = err.Error()
+	} else if err = v.Struct(body); err != nil {
+		err_msg = "Invalid request body:"
+		for _, e := range err.(validator.ValidationErrors) {
+			err_msg = fmt.Sprintf("%s %s.", err_msg, e)
+		}
+	} else {
+		err_msg = ""
+		for _, s := range body.Teams {
+			if err = v.Struct(s); err != nil {
+				err_msg = fmt.Sprintf("%s %s", err_msg, err)
+			}
+		}
+		if len(err_msg) > 0 {
+			err_msg = fmt.Sprintf("Invalid request body: %s", err_msg)
+		}
+	}
+
+	return
+}
 
 func getPathParams(url string, template string) (path_params map[string]string, err error) {
 	path_parts := strings.Split(url, "/")
@@ -45,11 +75,11 @@ func getPathParams(url string, template string) (path_params map[string]string, 
 	return
 }
 
-// Handler for HTTP REST requests for matches
+// Handler for HTTP REST requests for scores
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("%s request from %s to %s", r.Method, r.RemoteAddr, r.URL.Path))
 
-	path_params, err := getPathParams(r.URL.Path, "/matches/{match-id}")
+	path_params, err := getPathParams(r.URL.Path, "/scores/{score-id}")
 	if err != nil {
 		InternalServerError(w)
 		return
@@ -57,52 +87,42 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		if match_id, ok := path_params["match-id"]; ok {
-			// get specific match scoreboard
-			if scoreboard, featured, exists := data.GetScoreBoard(match_id); exists {
-				fmt.Println(featured)
-				Ok(w, scoreboard)
+		if score_id, ok := path_params["score-id"]; ok {
+			// get specific scoreboard
+			if sb, exists := data.GetScoreBoard(score_id); exists {
+				Ok(w, sb)
 			} else {
-				NotFound(w, fmt.Sprintf("No scoreboard found for ID: %s", match_id))
+				NotFound(w, fmt.Sprintf("No scoreboard found for ID: %s", score_id))
 			}
-
 		} else {
-			// list all match scoreboards
+			// list all scoreboards
 			scoreboards := data.GetScoreList()
 			Ok(w, scoreboards)
 		}
 	case "PUT":
-		if match_id, ok := path_params["match-id"]; ok {
-			bytes, err := ioutil.ReadAll(r.Body)
-			if err != nil {
-				BadRequest(w, "Invalid request body")
-				return
-			}
-			body := putRequest{}
-			err = json.Unmarshal(bytes, &body)
-			if err != nil {
-				BadRequest(w, err.Error())
-			} else if t := body.Match.Teams; t == nil {
-				BadRequest(w, "Field 'teams' is missing or incorrectly formatted")
+		if score_id, ok := path_params["score-id"]; ok {
+			body, err_msg := validatePut(r.Body)
+			if len(err_msg) > 0 {
+				BadRequest(w, err_msg)
 			} else {
-				data.SetScoreBoard(match_id, body.Match, body.Featured)
-				sb, featured, _ := data.GetScoreBoard(match_id)
-				result := map[string]interface{}{"match-id": match_id, "match": sb, "featured": featured}
+				sb := data.SetScoreBoard(score_id, body)
+				result := map[string]interface{}{"score-id": score_id, "scoreboard": sb}
 				Ok(w, result)
 				socket.Broadcast(result)
 			}
 		} else {
-			BadRequest(w, "No match-id provided in path")
+			BadRequest(w, "No score-id provided in path")
 		}
 	case "DELETE":
-		if match_id, ok := path_params["match-id"]; ok {
-			// delete specified match scoreboard
-			if _, _, exists := data.GetScoreBoard(match_id); exists {
-				data.DeleteScoreBoard(match_id)
-				Ok(w, map[string]string{"message": fmt.Sprintf("Successfully deleted scoreboard ID: %s", match_id)})
+		if score_id, ok := path_params["score-id"]; ok {
+			// delete specified scoreboard
+			if del := data.DeleteScoreBoard(score_id); del {
+				Ok(w, map[string]string{"message": fmt.Sprintf("Successfully deleted scoreboard ID: %s", score_id)})
 			} else {
-				NotFound(w, fmt.Sprintf("No scoreboard found for ID: %s", match_id))
+				NotFound(w, fmt.Sprintf("No scoreboard found for ID: %s", score_id))
 			}
+		} else {
+			BadRequest(w, "No score-id provided in path")
 		}
 	default:
 		MethodNotAllowed(w)

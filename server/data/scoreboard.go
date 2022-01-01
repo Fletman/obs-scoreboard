@@ -1,26 +1,25 @@
 package data
 
-import "scoreboard/util/locks"
-
-// Match status enums
-var Status_Enum_Set map[string]bool = map[string]bool{"Pending": true, "In Progress": true, "Completed": true}
+import (
+	"scoreboard/util/locks"
+	"strings"
+)
 
 // Struct representing score of an individual team
 type Score struct {
-	Name  string  `json:"name"`
-	Score float32 `json:"score"`
+	Name  string  `json:"name" validate:"required"`
+	Score float32 `json:"score" validate:"required"`
 }
 
 // Struct containing all competing teams, their scores, and status of the game
-type Match struct {
-	Teams  []Score `json:"teams"`
-	Status string  `json:"status"`
+type Scoreboard struct {
+	Teams     []Score `json:"teams" validate:"required"`
+	Completed bool    `json:"completed" validate:"required"`
 }
 
-// Struct tracking all matches
+// Struct tracking all scoreboards
 type ScoreList struct {
-	Featured    *Match            `json:"featured"`
-	Scoreboards map[string]*Match `json:"matches"`
+	Scoreboards map[string]*Scoreboard `json:"scoreboards"`
 }
 
 var scores *ScoreList
@@ -28,46 +27,47 @@ var scores *ScoreList
 // Initialize data
 func InitScores() {
 	scores = new(ScoreList)
-	scores.Scoreboards = make(map[string]*Match)
+	scores.Scoreboards = make(map[string]*Scoreboard)
 }
 
-// Return list of all current scoreboards and featured scoreboard
+// Return list of all current scoreboards
 func GetScoreList() ScoreList {
 	var s ScoreList
 	locks.Data_Mutex.Lock()
+	defer locks.Data_Mutex.Unlock()
 	s = *scores
-	locks.Data_Mutex.Unlock()
 	return s
 }
 
 // Return a scoreboard given its ID
-func GetScoreBoard(match_id string) (sb Match, featured bool, ok bool) {
+func GetScoreBoard(score_id string) (sb Scoreboard, ok bool) {
+	id := strings.ToLower(score_id)
 	locks.Data_Mutex.Lock()
-	scb, ok := scores.Scoreboards[match_id]
-	featured = (scb == scores.Featured)
+	defer locks.Data_Mutex.Unlock()
+	scb, ok := scores.Scoreboards[id]
 	if ok {
 		sb = *scb
 	}
-	locks.Data_Mutex.Unlock()
 	return
 }
 
 // Create/Update a scoreboard given its ID
-func SetScoreBoard(match_id string, new_board Match, featured bool) {
+func SetScoreBoard(score_id string, new_board Scoreboard) Scoreboard {
+	id := strings.ToLower(score_id)
 	locks.Data_Mutex.Lock()
-	scores.Scoreboards[match_id] = &new_board
-	if featured {
-		scores.Featured = scores.Scoreboards[match_id]
-	}
-	locks.Data_Mutex.Unlock()
+	defer locks.Data_Mutex.Unlock()
+	scores.Scoreboards[id] = &new_board
+	return *scores.Scoreboards[id]
 }
 
 // Remove a scoreboard given its ID
-func DeleteScoreBoard(match_id string) {
+func DeleteScoreBoard(score_id string) (ok bool) {
+	id := strings.ToLower(score_id)
 	locks.Data_Mutex.Lock()
-	if scores.Featured == scores.Scoreboards[match_id] {
-		scores.Featured = nil
+	defer locks.Data_Mutex.Unlock()
+	_, ok = scores.Scoreboards[id]
+	if ok {
+		delete(scores.Scoreboards, id)
 	}
-	delete(scores.Scoreboards, match_id)
-	locks.Data_Mutex.Unlock()
+	return
 }
