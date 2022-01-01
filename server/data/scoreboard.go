@@ -14,7 +14,7 @@ type Score struct {
 // Struct containing all competing teams, their scores, and status of the game
 type Scoreboard struct {
 	Teams     []Score `json:"teams" validate:"required"`
-	Completed bool    `json:"completed" validate:"required"`
+	Completed *bool   `json:"completed" validate:"required"`
 }
 
 // Struct tracking all scoreboards
