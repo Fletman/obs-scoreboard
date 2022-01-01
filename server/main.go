@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"scoreboard/api/rest"
-	"scoreboard/api/socket"
+	"scoreboard/api"
 	"scoreboard/data"
 )
 
@@ -16,9 +15,9 @@ func main() {
 
 	data.InitScores()
 
-	http.HandleFunc("/live", socket.HandleConnection)
-	http.HandleFunc("/scores", rest.HandleRequest)
-	http.HandleFunc("/scores/", rest.HandleRequest)
+	http.HandleFunc("/live", api.HandleConnection)
+	http.HandleFunc("/scores", api.HandleRequest)
+	http.HandleFunc("/scores/", api.HandleRequest)
 
 	log.Println(fmt.Sprintf("Starting server on port %d", *port))
 	err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)

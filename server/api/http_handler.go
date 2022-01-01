@@ -1,4 +1,4 @@
-package rest
+package api
 
 import (
 	"encoding/json"
@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"regexp"
-	"scoreboard/api/socket"
 	"scoreboard/data"
 	"strings"
 
@@ -108,7 +107,7 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 				sb := data.SetScoreBoard(score_id, body)
 				result := map[string]interface{}{"score-id": score_id, "scoreboard": sb}
 				Ok(w, result)
-				socket.Broadcast(result)
+				Broadcast(result)
 			}
 		} else {
 			BadRequest(w, "No score-id provided in path")
