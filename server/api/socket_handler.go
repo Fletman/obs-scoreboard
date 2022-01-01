@@ -27,6 +27,9 @@ func Broadcast(body interface{}) {
 // Handler for persistent connections listening for score updates
 func HandleConnection(w http.ResponseWriter, r *http.Request) {
 	log.Println("Establishing new websocket connection")
+
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true } // TODO: testing line, an actual verification function should be used here
+
 	conn, err := upgrader.Upgrade(w, r, nil) // upgrade http connection to websocket
 	if err != nil {
 		log.Println("Http upgrade failed: ", err)
