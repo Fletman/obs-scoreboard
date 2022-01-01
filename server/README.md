@@ -104,9 +104,9 @@ PUT /scores/score_1
 #### GET
 Retrieve a specific scoreboard
 
-#### Request
+##### Request
 
-##### Path Parameters
+###### Path Parameters
 | Parameter | Type   | Description                       |
 | --------- | ------ | --------------------------------- |
 | score-id  | string | ID of scoreboard to create/update |
@@ -137,9 +137,9 @@ Retrieve a specific scoreboard
 #### DELETE
 Delete a specific scoreboard
 
-#### Request
+##### Request
 
-##### Path Parameters
+###### Path Parameters
 | Parameter | Type   | Description                       |
 | --------- | ------ | --------------------------------- |
 | score-id  | string | ID of scoreboard to create/update |
