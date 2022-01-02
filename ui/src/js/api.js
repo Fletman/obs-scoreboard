@@ -26,7 +26,7 @@ module.exports = class ScoreboardAPI {
     /**
      * Given an ID, return that scoreboard
      * @param {string} id ID of scoreboard
-     * @returns {Promise<Object>}
+     * @returns {Promise<Object?>} Returns scoreboard object if scoreboard exists, otherwise returns null
      */
     async get_scoreboard(id) {
         const url = `${this.host}/scores/${id}`;
@@ -37,7 +37,7 @@ module.exports = class ScoreboardAPI {
             case 200:
                 return body;
             case 404:
-                return {};
+                return null;
             case 500:
                 throw(body.message);
             default:
