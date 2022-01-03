@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="main">
     <header>
       <h1>Scoreboard</h1>
       <h4>Sponsored by Flet Inc.™</h4>

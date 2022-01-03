@@ -7,8 +7,8 @@ import (
 
 // Struct representing score of an individual team
 type Score struct {
-	Name  string  `json:"name" validate:"required"`
-	Score float32 `json:"score" validate:"required"`
+	Name  string   `json:"name" validate:"required"`
+	Score *float32 `json:"score" validate:"required"`
 }
 
 // Struct containing all competing teams, their scores, and status of the game
