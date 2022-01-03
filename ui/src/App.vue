@@ -38,8 +38,9 @@ export default {
     load_scores() {
         this.handler.list_scoreboards()
         .then((scoreboards) => {
-            console.log(scoreboards)
-            this.scoreboards = scoreboards;
+            for(const score of scoreboards) {
+              this.scoreboards[score['score-id']] = score;
+            }
         }).catch((err) => {
             console.error(err);
         });
@@ -51,7 +52,7 @@ export default {
 
     this.listener.on('message', (event) => {
       const score = JSON.parse(event.data);
-      this.scoreboards[score['score-id']] = score.scoreboard;
+      this.scoreboards[score['score-id']] = score;
     });
     this.listener.connect();
   },

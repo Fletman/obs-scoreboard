@@ -83,6 +83,7 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 		InternalServerError(w)
 		return
 	}
+	query_params := r.URL.Query()
 
 	switch r.Method {
 	case "GET":
@@ -93,10 +94,18 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 			} else {
 				NotFound(w, fmt.Sprintf("No scoreboard found for ID: %s", score_id))
 			}
+		} else if len(query_params["featured"]) > 0 && query_params["featured"][0] == "true" {
+			fsb, exists := data.GetFeaturedScoreboard()
+			if exists {
+				Ok(w, fsb)
+			} else {
+				NotFound(w, "No featured scoreboard currently available")
+			}
+		} else if len(query_params["score-id"]) > 0 {
+			Ok(w, map[string][]data.Scoreboard{"scoreboards": data.GetFilteredScoreList(query_params["score-id"])})
 		} else {
 			// list all scoreboards
-			scoreboards := data.GetScoreList()
-			Ok(w, scoreboards)
+			Ok(w, map[string][]data.Scoreboard{"scoreboards": data.GetScoreList()})
 		}
 	case "PUT":
 		if score_id, ok := path_params["score-id"]; ok {
@@ -105,9 +114,8 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 				BadRequest(w, err_msg)
 			} else {
 				sb := data.SetScoreBoard(score_id, body)
-				result := map[string]interface{}{"score-id": score_id, "scoreboard": sb}
-				Ok(w, result)
-				Broadcast(result)
+				Ok(w, sb)
+				Broadcast(sb)
 			}
 		} else {
 			BadRequest(w, "No score-id provided in path")

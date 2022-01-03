@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"scoreboard/util/locks"
 	"strings"
 )
@@ -13,30 +14,52 @@ type Score struct {
 
 // Struct containing all competing teams, their scores, and status of the game
 type Scoreboard struct {
+	Id        string  `json:"score-id"`
 	Teams     []Score `json:"teams" validate:"required"`
 	Completed *bool   `json:"completed" validate:"required"`
+	Featured  bool    `json:"featured"`
 }
 
 // Struct tracking all scoreboards
-type ScoreList struct {
-	Scoreboards map[string]*Scoreboard `json:"scoreboards"`
+type ScoreMap struct {
+	Scoreboards   map[string]*Scoreboard
+	FeaturedScore *Scoreboard
 }
 
-var scores *ScoreList
+var scores ScoreMap = ScoreMap{}
 
 // Initialize data
 func InitScores() {
-	scores = new(ScoreList)
 	scores.Scoreboards = make(map[string]*Scoreboard)
+	scores.FeaturedScore = nil
 }
 
 // Return list of all current scoreboards
-func GetScoreList() ScoreList {
-	var s ScoreList
+func GetScoreList() []Scoreboard {
 	locks.Data_Mutex.Lock()
 	defer locks.Data_Mutex.Unlock()
-	s = *scores
-	return s
+	list := make([]Scoreboard, len(scores.Scoreboards))
+	i := 0
+	for _, s := range scores.Scoreboards {
+		s.Featured = (s == scores.FeaturedScore)
+		list[i] = *s
+		i++
+	}
+	return list
+}
+
+// Return list of scoreboards containing only supplied score-ids
+func GetFilteredScoreList(score_ids []string) []Scoreboard {
+	list := []Scoreboard{}
+	locks.Data_Mutex.Lock()
+	defer locks.Data_Mutex.Unlock()
+	for _, id := range score_ids {
+		if s, ok := scores.Scoreboards[id]; ok {
+			s.Featured = (s == scores.FeaturedScore)
+			list = append(list, *s)
+		}
+	}
+	return list
 }
 
 // Return a scoreboard given its ID
@@ -46,7 +69,17 @@ func GetScoreBoard(score_id string) (sb Scoreboard, ok bool) {
 	defer locks.Data_Mutex.Unlock()
 	scb, ok := scores.Scoreboards[id]
 	if ok {
+		scb.Featured = (scb == scores.FeaturedScore)
 		sb = *scb
+	}
+	return
+}
+
+func GetFeaturedScoreboard() (sb Scoreboard, ok bool) {
+	locks.Data_Mutex.Lock()
+	defer locks.Data_Mutex.Unlock()
+	if ok = scores.FeaturedScore != nil; ok {
+		sb = *scores.FeaturedScore
 	}
 	return
 }
@@ -54,9 +87,15 @@ func GetScoreBoard(score_id string) (sb Scoreboard, ok bool) {
 // Create/Update a scoreboard given its ID
 func SetScoreBoard(score_id string, new_board Scoreboard) Scoreboard {
 	id := strings.ToLower(score_id)
+	new_board.Id = score_id
 	locks.Data_Mutex.Lock()
 	defer locks.Data_Mutex.Unlock()
-	scores.Scoreboards[id] = &new_board
+	scores.Scoreboards[id] = &Scoreboard{}
+	*scores.Scoreboards[id] = new_board
+	if scores.Scoreboards[id].Featured {
+		scores.FeaturedScore = scores.Scoreboards[id]
+	}
+	fmt.Println(scores)
 	return *scores.Scoreboards[id]
 }
 
@@ -65,8 +104,11 @@ func DeleteScoreBoard(score_id string) (ok bool) {
 	id := strings.ToLower(score_id)
 	locks.Data_Mutex.Lock()
 	defer locks.Data_Mutex.Unlock()
-	_, ok = scores.Scoreboards[id]
+	s, ok := scores.Scoreboards[id]
 	if ok {
+		if s == scores.FeaturedScore {
+			scores.FeaturedScore = nil
+		}
 		delete(scores.Scoreboards, id)
 	}
 	return
