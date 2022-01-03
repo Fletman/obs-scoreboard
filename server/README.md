@@ -2,11 +2,14 @@
 
 ## Setup
 
+### Test
+`go test ./...`
+
 ### Compile
 `go build -o server.exe`
 
 ### Run
-`./server.exe`
+`./server.exe -p <port>`
 
 ## HTTP Endpoints
 
@@ -16,7 +19,11 @@
 Return a list of all scoreboards
 
 ##### Request
-None
+###### Query Parameters
+| Parameter | Type    | Description                                       |
+| --------- | ------- | ------------------------------------------------- |
+| score-id  | string  | Filter response to only list specific scoreboards |
+| featured  | boolean | Filter out non-featured scoreboards               |
 
 ###### Example
 ```GET /scores```
