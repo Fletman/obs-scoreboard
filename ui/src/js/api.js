@@ -47,6 +47,28 @@ module.exports = class ScoreboardAPI {
     }
 
     /**
+     * Retrieve the featured scoreboard, or null if no scoreboard is currently featured
+     * @returns {Object} Scoreboard object
+     */
+    async get_featured_scoreboard() {
+        const url = `${this.host}/scores?featured=true`;
+        const params = { method: 'GET' };
+        const response = await fetch(url, params);
+        const body = await response.json();
+        switch(response.status) {
+            case 200:
+                return body;
+            case 404:
+                return null;
+            case 500:
+                throw(body.message);
+            default:
+                console.error(response);
+                throw(`Unsupported status code ${response.status}`);
+        }
+    }
+
+    /**
      * Create or update a scoreboard
      * @param {string} id ID of scoreboard
      * @param {Object} scoreboard Scoreboard object to pass to API
