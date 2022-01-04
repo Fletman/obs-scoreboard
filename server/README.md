@@ -23,7 +23,7 @@ Return a list of all scoreboards
 | Parameter | Type    | Description                                       |
 | --------- | ------- | ------------------------------------------------- |
 | score-id  | string  | Filter response to only list specific scoreboards |
-| featured  | boolean | Filter out non-featured scoreboards               |
+| featured  | boolean | Get featured scoreboard object                    |
 
 ###### Example
 ```GET /scores```
@@ -43,6 +43,13 @@ Return a list of all scoreboards
             ]
         }
     }
+}
+```
+
+```json
+404 Not Found
+{
+    "message": <string>
 }
 ```
 
