@@ -1,13 +1,15 @@
+# Server files
 *.exe
-.vs
-.DS_Store
+
+# UI files
+.env.local
+.env.*.local
 node_modules
 /dist
 
-
-# local env files
-.env.local
-.env.*.local
+# OBS Script files
+modules
+*.zip
 
 # Log files
 npm-debug.log*
@@ -23,3 +25,5 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+.vs
+.DS_Store
