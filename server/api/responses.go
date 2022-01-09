@@ -28,8 +28,16 @@ func res(w http.ResponseWriter, status int, body interface{}) error {
 	}
 	log.Println(string(log_msg))
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	headers := [][]string{
+		{"Content-Type", "application/json"},
+		{"Access-Control-Allow-Origin", "*"},
+		{"Access-Control-Allow-Methods", "GET, PUT, DELETE, OPTIONS"},
+		{"Access-Control-Allow-Credentials", "true"},
+		{"Access-Control-Allow-Headers", "Content-Type, origin, authorization, accept"},
+	}
+	for _, h := range headers {
+		w.Header().Set(h[0], h[1])
+	}
 	w.WriteHeader(status)
 	output, err := json.Marshal(body)
 	if err != nil {

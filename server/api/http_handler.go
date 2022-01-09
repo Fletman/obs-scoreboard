@@ -131,6 +131,8 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 		} else {
 			BadRequest(w, "No score-id provided in path")
 		}
+	case "OPTIONS":
+		Ok(w, nil)
 	default:
 		MethodNotAllowed(w)
 	}
