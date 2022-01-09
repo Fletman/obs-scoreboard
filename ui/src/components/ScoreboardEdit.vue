@@ -11,9 +11,10 @@
 </template>
 
 <script>
+import '../styling/fonts.css';
 
 export default {
-  name: 'Scoreboard',
+  name: 'ScoreboardEdit',
   components: {
     
   },
@@ -48,7 +49,8 @@ export default {
   },
 
   created() {
-      
+      console.log("Loading ScoreboardEdit");
+      console.log(`Editable: ${this.editable}`);
   },
 
   computed: {
@@ -73,17 +75,5 @@ export default {
     font-size: 2.5em;
     color: white;
     text-shadow: 2px 2px black;
-  }
-
- .scoreboard-listed {
-      width: 25%;
-      height: fit-content;
-      font-size: 1.5em;
-      background-color: rgba(216, 216, 216, 0.875);
-  }
-
-  .scoreboard-listed:hover {
-      background-color: rgba(216, 216, 216, 1);
-      cursor: pointer;
   }
 </style>

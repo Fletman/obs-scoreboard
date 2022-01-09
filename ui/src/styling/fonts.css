@@ -1,0 +1,10 @@
+@import url('http://fonts.cdnfonts.com/css/halo');
+@import url('http://fonts.cdnfonts.com/css/handel-gothic-d');
+
+.primary-halo-font {
+    font-family: 'Halo';
+}
+
+.secondary-halo-font {
+    font-family: 'Handel Gothic D';
+}
