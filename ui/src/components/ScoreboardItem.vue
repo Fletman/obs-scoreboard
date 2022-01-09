@@ -1,6 +1,9 @@
 <template>
   <div class="scoreboard-listed">
     <span id="featured-marker" v-if="data.featured">💫</span>
+    <a id="edit-button" target="_blank" :href="edit_link">
+      <img src="../assets/edit_icon.webp" alt="Edit Score"/>
+    </a>
     <div id="score-id" class="primary-halo-font">{{ scoreId }}</div>
     <div>
       <table id="scoreboard-teams" class="secondary-halo-font">
@@ -61,12 +64,31 @@ export default {
   },
 
   computed: {
-    
+    edit_link() {
+      return `${window.location.origin}/${this.data['score-id']}/edit`;
+    }
   }
 }
 </script>
 
 <style>
+  #edit-button {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 1px;
+  }
+
+  #edit-button img {
+    width: calc(0.75vh + 0.75vw);
+    height: calc(0.75vh + 0.75vw);
+  }
+
+  #edit-button img:hover {
+    background-color: #4a5363;
+    border-radius: 2px;
+  }
+
   #featured-marker {
     position: absolute;
     top: 0px;
@@ -91,15 +113,6 @@ export default {
       color: white;
       font-size: calc(0.75vh + 0.75vw);
       filter: drop-shadow(1px 1px 5px gray);
-  }
-
-  .scoreboard-listed:hover {
-      background-color: #283141;
-      cursor: pointer;
-  }
-
-  .scoreboard-listed:active {
-      background-color: #394252;
   }
 
   .team-name {

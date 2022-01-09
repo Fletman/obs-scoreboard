@@ -1,17 +1,20 @@
 <template>
-  <div :class="set_style">
+  <div class="scoreboard-edit">
     <div>{{ scoreId }}</div>
     <div>
-      <span v-for="(team, index) in data.teams" :key=index>
-        {{ team.name }} ({{ team.score }})
-        <span v-if="index+1 != data.teams.length"> vs. </span>
-      </span>
+      <form v-on:change="update_score">
+        <span v-for="(team, index) in data.teams" :key="index">
+          <input type="text" readonly v-model="team.name"/>
+          <input type="number" :readonly="data.completed" v-model="team.score"/>
+        </span>
+      </form>
     </div>
   </div>
 </template>
 
 <script>
 import '../styling/fonts.css';
+
 
 export default {
   name: 'ScoreboardEdit',
@@ -28,13 +31,9 @@ export default {
           type: Object,
           required: true
       },
-      focused: {
-          type: Boolean,
-          default: false
-      },
-      editable: {
-        type: Boolean,
-        default: false
+      handler: {
+        type: Object,
+        required: true
       }
   },
 
@@ -45,35 +44,21 @@ export default {
   },
 
   methods: {
-      
+    update_score() {
+      this.handler.set_scoreboard(this.data['score-id'], this.data);
+    }  
   },
 
   created() {
       console.log("Loading ScoreboardEdit");
-      console.log(`Editable: ${this.editable}`);
   },
 
   computed: {
-      set_style() {
-        return this.focused ?
-          "scoreboard scoreboard-focused" :
-          "scoreboard scoreboard-listed"
-      }
+      
   }
 }
 </script>
 
 <style>
-  .scoreboard {
-    padding: 2px;
-    text-align: center;
-  }
 
-  .scoreboard-focused {
-    width: 100%;
-    height: auto;
-    font-size: 2.5em;
-    color: white;
-    text-shadow: 2px 2px black;
-  }
 </style>

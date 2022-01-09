@@ -1,17 +1,20 @@
 <template>
   <div id="main">
-    <ScoreboardEdit
-      class="scoreboard"
-      v-if="edit === true && active_scoreboard"
-      :score-id="active_scoreboard['score-id']"
-      :data="active_scoreboard"/>
-    <ScoreboardStatic
-      class="scoreboard"
-      v-else-if="active_scoreboard"
-      :score-id="active_scoreboard['score-id']"
-      :data="active_scoreboard"/>
+    <div id="main-view" v-if="edit === true && active_scoreboard">
+      <ScoreboardEdit
+        class="scoreboard"
+        :score-id="active_scoreboard['score-id']"
+        :data="active_scoreboard"
+        :handler="handler"/>
+    </div>
+    <div v-else-if="active_scoreboard">
+      <ScoreboardStatic
+        class="scoreboard"
+        :score-id="active_scoreboard['score-id']"
+        :data="active_scoreboard"/>
+    </div>
     <div id="main-view" v-else>
-      <header>
+      <header class="primary-halo-font">
           <h1 class="title text-glow">HALO</h1>
           <h3 class="title text-glow">Tournament of the Chosen</h3>
           <h6 class="title">Sponsored by Flet Inc.™</h6>
@@ -22,14 +25,14 @@
           v-for="[id, scoreboard] in scores"
           :key="id"
           :score-id="id"
-          :data="scoreboard"
-          v-on:click="select_scoreboard(id)"/>
+          :data="scoreboard"/>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import './styling/fonts.css';
 import ScoreboardAPI from './js/api';
 import ScoreListener from './js/listener';
 import ScoreboardItem from './components/ScoreboardItem.vue';
@@ -110,14 +113,10 @@ export default {
         }).catch((err) => {
           console.error(err);
         });
-    },
-
-    select_scoreboard(id) {
-      window.location.href = `${window.location.origin}/${id}/edit`;
     }
   },
 
-  created() {
+  beforeMount() {
     this.route();
 
     this.listener.on('message', (event) => {
@@ -140,8 +139,6 @@ export default {
 </script>
 
 <style>
-  @import url('http://fonts.cdnfonts.com/css/halo');
-
   #main {
     position: fixed;
     height: 100vh;
@@ -155,7 +152,7 @@ export default {
     padding: 0px;
     width: 100%;
     height: 100%;
-    background-image: url('./assets/ring_bg.webp');
+    background: url('./assets/ring_bg.webp');
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
@@ -188,7 +185,6 @@ export default {
   header {
     text-align: center;
     overflow: hidden;
-    font-family: 'Halo', sans-serif;
     font-size: calc(1vh + 1vw);
     height: 20%;
   }

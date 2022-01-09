@@ -1,11 +1,10 @@
 <template>
   <div class="scoreboard-focused primary-halo-font">
-    <div>{{ scoreId }}</div>
-    <div>
-      <span v-for="(team, index) in data.teams" :key=index>
-        {{ team.name }} ({{ team.score }})
-        <span v-if="index+1 != data.teams.length"> vs. </span>
-      </span>
+    <div id="team-list">
+      <div :style="set_sizes" v-for="(team, index) in data.teams" :key=index>
+        <div>{{ team.name }}</div>
+        <div>{{ team.score }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -45,16 +44,26 @@ export default {
   },
 
   computed: {
-
+    set_sizes() {
+      const width_pct = this.data.teams.length != 0 ?
+        Math.floor(100/this.data.teams.length):
+        0;
+      return `width: ${width_pct}%; font-size: ${width_pct/20}vw`;
+    }
   }
 }
 </script>
 
-<style>  
+<style>
+  #team-list {
+    display: flex;
+    flex-flow: row;
+    justify-content: space-evenly;
+  }
+
   .scoreboard-focused {
     width: 100%;
     height: auto;
-    font-size: 2.5em;
     color: white;
     text-shadow: 2px 2px black;
   }
