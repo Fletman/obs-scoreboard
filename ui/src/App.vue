@@ -112,6 +112,8 @@ export default {
         .then((scoreboard) => {
           if(scoreboard) {
             this.active_scoreboard = scoreboard;
+          } else {
+            this.active_scoreboard = {};
           }
         }).catch((err) => {
           console.error(err);
