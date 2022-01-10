@@ -1,7 +1,7 @@
 <template>
   <div class="scoreboard-listed">
     <span id="featured-marker" v-if="data.featured">💫</span>
-    <a id="edit-button" target="_blank" :href="edit_link">
+    <a id="edit-button" :href="edit_link">
       <img src="../assets/edit_icon.webp" alt="Edit Score"/>
     </a>
     <div id="score-id" class="primary-halo-font">{{ scoreId }}</div>

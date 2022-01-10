@@ -26,6 +26,9 @@
           :key="id"
           :score-id="id"
           :data="scoreboard"/>
+        <div id="add-scoreboard" v-on:click="create_scoreboard">
+          <span>+</span>
+        </div>
       </div>
     </div>
   </div>
@@ -113,6 +116,33 @@ export default {
         }).catch((err) => {
           console.error(err);
         });
+    },
+
+    create_scoreboard() {
+      const score_id = window.prompt("Enter a scoreboard name");
+      if(score_id) {
+        this.handler.get_scoreboard(score_id)
+        .then((scoreboard) => {
+          if(scoreboard) {
+            console.error(`Scoreboard ${score_id} already exists`);
+          } else {
+            this.handler.set_scoreboard(
+              score_id,
+              {
+                teams: [],
+                completed: false,
+                featured: false
+              }
+            ).then(() => {
+              window.location.href = `${window.location.origin}/${score_id}/edit`;
+            }).catch((err) => {
+              console.error(err);
+            });
+          }
+        }).catch((err) => {
+          console.error(err);
+        });
+      }
     }
   },
 
@@ -167,13 +197,29 @@ export default {
     justify-content: space-evenly;
   }
 
+  #add-scoreboard {
+    display: flex;
+    position: relative;
+    margin: 10px 2px;
+    width: 25%;
+    height: 8.75vh;
+    justify-content: center;
+    align-items: center;
+    background-color: #172030;
+    color: white;
+    font-size: calc(1.25vh + 1.25vw);
+    text-align: center;
+    filter: drop-shadow(1px 1px 5px gray);
+  }
+
+  #add-scoreboard:hover {
+    cursor: pointer;
+    background-color: #283141;
+  }
+
   .scoreboard {
     padding: 2px;
     text-align: center;
-  }
-
-  .text-glow {
-    filter: drop-shadow(1px 1px 10px white);
   }
 
   .title {

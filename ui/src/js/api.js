@@ -86,4 +86,18 @@ module.exports = class ScoreboardAPI {
             throw(body.message);
         }
     }
+
+    /**
+     * Delete a scoreboard
+     * @param {string} id ID of scoreboard
+     */
+    async remove_scoreboard(id) {
+        const url = `${this.host}/scores/${id}`;
+        const params = { method: 'DELETE' };
+        const response = await fetch(url, params);
+        if(response.status != 200) {
+            const body = await response.json();
+            throw(body.message);
+        }
+    }
 }
