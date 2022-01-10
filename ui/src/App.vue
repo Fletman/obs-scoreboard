@@ -110,11 +110,7 @@ export default {
     load_featured_scoreboard() {
       this.handler.get_featured_scoreboard()
         .then((scoreboard) => {
-          if(scoreboard) {
-            this.active_scoreboard = scoreboard;
-          } else {
-            this.active_scoreboard = {};
-          }
+          this.active_scoreboard = scoreboard || {};
         }).catch((err) => {
           console.error(err);
         });
