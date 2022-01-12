@@ -1,7 +1,7 @@
 <template>
-  <div class="scoreboard-edit">
+  <div>
     <header>
-      <h2 class="primary-halo-font text-glow">{{ scoreId }}</h2>
+      <h1 class="primary-halo-font title text-glow">{{ score_data['score-id'] }}</h1>
     </header>
     <div>
       <form v-on:change="update_score" v-on:submit.prevent="">
@@ -47,9 +47,6 @@
 </template>
 
 <script>
-import '../styling/fonts.css';
-
-
 export default {
   name: 'ScoreboardEdit',
   components: {
@@ -57,10 +54,6 @@ export default {
   },
 
   props: {
-      'score-id': {
-          type: String,
-          required: true
-      },
       data: {
           type: Object,
           required: true
@@ -107,7 +100,7 @@ export default {
       if(window.confirm(`Are you sure you want to delete ${this.score_data['score-id']}?`)) {
         this.handler.remove_scoreboard(this.score_data['score-id'])
           .then(() => {
-            window.location.replace(window.location.origin);
+            this.$router.replace('/');
           }).catch((err) => {
             console.error(err);
           });
@@ -115,7 +108,7 @@ export default {
     },
 
     return_home() {
-      window.location.href = window.location.origin;
+      this.$router.push('/');
     }
   },
 
@@ -136,6 +129,9 @@ export default {
 </script>
 
 <style>
+  @import '../css/main.css';
+  @import '../css/fonts.css';
+
   #edit-menu {
     margin: auto;
   }
@@ -185,9 +181,5 @@ export default {
   .score-text-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
-  }
-
-  .scoreboard-edit {
-    color: white;
   }
 </style>

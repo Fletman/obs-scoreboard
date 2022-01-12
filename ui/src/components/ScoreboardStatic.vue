@@ -10,8 +10,6 @@
 </template>
 
 <script>
-import '../styling/fonts.css';
-
 export default {
   name: 'ScoreboardStatic',
   components: {
@@ -19,10 +17,6 @@ export default {
   },
 
   props: {
-      'score-id': {
-          type: String,
-          required: true
-      },
       data: {
           type: Object,
           required: true
@@ -55,6 +49,8 @@ export default {
 </script>
 
 <style>
+  @import '../css/fonts.css';
+
   #team-list {
     display: flex;
     flex-flow: row;

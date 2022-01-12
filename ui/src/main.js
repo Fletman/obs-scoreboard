@@ -1,4 +1,21 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from 'vue/dist/vue.esm-bundler.js';
+import { createRouter, createWebHistory } from 'vue-router';
+import ScoreGridPage from './pages/ScoreGridPage.vue'
+import ScoreFeaturedPage from './pages/ScoreFeaturedPage';
+import ScoreViewerPage from './pages/ScoreViewerPage.vue';
+import ScoreEditorPage from './pages/ScoreEditorPage.vue';
 
-createApp(App).mount('#app')
+const routes = [
+    { path: '/', component: ScoreGridPage },
+    { path: '/featured', component: ScoreFeaturedPage },
+    { path: '/view/:id', component: ScoreViewerPage },
+    { path: '/edit/:id', component: ScoreEditorPage }
+];
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+});
+
+const app = createApp({});
+app.use(router);
+app.mount("#app");
