@@ -1,10 +1,12 @@
 <template>
   <div class="scoreboard-listed">
     <span id="featured-marker" v-if="data.featured">💫</span>
-    <a id="edit-button" :href="edit_link">
+    <router-link id="edit-button" :to="edit_link">
       <img src="../assets/edit_icon.webp" alt="Edit Score"/>
-    </a>
-    <div id="score-id" class="primary-halo-font">{{ scoreId }}</div>
+    </router-link>
+    <router-link id="score-id" class="primary-halo-font" :to="view_link">
+      {{ scoreId }}
+    </router-link>
     <div>
       <table id="scoreboard-teams" class="secondary-halo-font">
         <tr v-for="(team, index) in data.teams" :key=index>
@@ -18,8 +20,6 @@
 </template>
 
 <script>
-import '../styling/fonts.css';
-
 export default {
   name: 'ScoreboardItem',
   components: {
@@ -56,6 +56,10 @@ export default {
         }
       });
       return i === winner.index;
+    },
+
+    open_editor() {
+      this.$router.push(this.edit_link)
     }
   },
 
@@ -64,14 +68,20 @@ export default {
   },
 
   computed: {
+    view_link() {
+      return `/view/${this.data['score-id']}`;
+    },
+
     edit_link() {
-      return `${window.location.origin}/${this.data['score-id']}/edit`;
+      return `/edit/${this.data['score-id']}`;
     }
   }
 }
 </script>
 
 <style>
+  @import '../css/fonts.css';
+
   #edit-button {
     position: absolute;
     top: 0px;
@@ -97,6 +107,12 @@ export default {
 
   #score-id {
     font-size: calc(1vh + 1vw);
+    color: white;
+    text-decoration: none;
+  }
+
+  #score-id:hover {
+    text-decoration: underline;
   }
 
   #scoreboard-teams {
