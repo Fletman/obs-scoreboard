@@ -71,12 +71,18 @@ export default {
   },
 
   methods: {
+    prevent_change() {
+      window.alert("Changes cannot be made to a scoreboard marked as completed");
+    },
+
     add_team() {
       if(!this.score_data.completed) {
         this.score_data.teams.push({
           name: "",
           score: 0
         });
+      } else {
+        this.prevent_change();
       }
     },
 
@@ -84,12 +90,18 @@ export default {
       if(!this.score_data.completed) {
         this.score_data.teams.splice(index, 1);
         this.update_score();
+      } else {
+        this.prevent_change();
       }
     },
 
     score_increment(index, val) {
-      this.score_data.teams[index].score += val;
-      this.update_score();
+      if(!this.score_data.completed) {
+        this.score_data.teams[index].score += val;
+        this.update_score();
+      } else {
+        this.prevent_change();
+      }
     },
 
     update_score() {
