@@ -2,6 +2,7 @@
   <div id="main">
     <div id="main-view">
       <ScoreboardEdit
+        v-if="active_scoreboard"
         class="scoreboard"
         :score-id="active_scoreboard['score-id']"
         :data="active_scoreboard"
@@ -23,7 +24,7 @@ export default {
 
   data() {
     return {
-      listener: new ScoreListener(),
+      listener: ScoreListener.get_socket_handler(),
 
       handler: new ScoreboardAPI(),
 
@@ -53,7 +54,6 @@ export default {
         this.active_scoreboard = score;
       }
     });
-    this.listener.connect();
   },
 
   computed: {

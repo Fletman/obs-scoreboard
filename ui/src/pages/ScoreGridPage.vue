@@ -34,7 +34,7 @@ export default {
 
   data() {
     return {
-      listener: new ScoreListener(),
+      listener: ScoreListener.get_socket_handler(),
 
       handler: new ScoreboardAPI(),
 
@@ -89,8 +89,6 @@ export default {
       const score = JSON.parse(event.data);
       this.scoreboards[score['score-id']] = score;
     });
-    this.listener.connect();
-    console.log(this.$route.params);
   },
 
   computed: {

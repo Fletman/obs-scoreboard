@@ -2,7 +2,7 @@
 /**
  * Class for handling live score updates
  */
-module.exports = class ScoreListener {
+ class ScoreListener {
     /**
      * @param {string} host WebSocket endpoint to connect to
      * @param {string?} jwt Token to authenticate with host
@@ -61,5 +61,20 @@ module.exports = class ScoreListener {
         this.ws.addEventListener('close', (event) => {
             this.emit('close', event)
         });
+    }
+}
+
+let handler;
+module.exports = {
+    /**
+     *
+     * @returns {ScoreListener} Socket handler
+     */
+    get_socket_handler() {
+        if(!handler) {
+            handler = new ScoreListener();
+            handler.connect();
+        }
+        return handler;
     }
 }
