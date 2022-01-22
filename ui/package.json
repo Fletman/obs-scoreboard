@@ -5,7 +5,9 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "clean": "rd /s /q release",
+    "release": "mkdir release && go build -o release/dist-server.exe dist-server/main.go && vue-cli-service build && move dist release/dist"
   },
   "dependencies": {
     "core-js": "^3.6.5",
