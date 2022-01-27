@@ -17,8 +17,8 @@ var upgrader = websocket.Upgrader{
 }
 
 func Broadcast(body interface{}) {
-	locks.Broadcast_mutex.Lock()
-	defer locks.Broadcast_mutex.Unlock()
+	locks.Broadcast_Mutex.Lock()
+	defer locks.Broadcast_Mutex.Unlock()
 	for _, c := range clients {
 		c.WriteJSON(body)
 	}
