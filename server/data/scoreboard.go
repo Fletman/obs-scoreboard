@@ -1,7 +1,6 @@
 package data
 
 import (
-	"fmt"
 	"scoreboard/util/locks"
 	"strings"
 )
@@ -36,8 +35,8 @@ func InitScores() {
 
 // Return list of all current scoreboards
 func GetScoreList() []Scoreboard {
-	locks.Data_Mutex.Lock()
-	defer locks.Data_Mutex.Unlock()
+	locks.Score_Mutex.Lock()
+	defer locks.Score_Mutex.Unlock()
 	list := make([]Scoreboard, len(scores.Scoreboards))
 	i := 0
 	for _, s := range scores.Scoreboards {
@@ -51,8 +50,8 @@ func GetScoreList() []Scoreboard {
 // Return list of scoreboards containing only supplied score-ids
 func GetFilteredScoreList(score_ids []string) []Scoreboard {
 	list := []Scoreboard{}
-	locks.Data_Mutex.Lock()
-	defer locks.Data_Mutex.Unlock()
+	locks.Score_Mutex.Lock()
+	defer locks.Score_Mutex.Unlock()
 	for _, id := range score_ids {
 		if s, ok := scores.Scoreboards[id]; ok {
 			s.Featured = (s == scores.FeaturedScore)
@@ -65,8 +64,8 @@ func GetFilteredScoreList(score_ids []string) []Scoreboard {
 // Return a scoreboard given its ID
 func GetScoreBoard(score_id string) (sb Scoreboard, ok bool) {
 	id := strings.ToLower(score_id)
-	locks.Data_Mutex.Lock()
-	defer locks.Data_Mutex.Unlock()
+	locks.Score_Mutex.Lock()
+	defer locks.Score_Mutex.Unlock()
 	scb, ok := scores.Scoreboards[id]
 	if ok {
 		scb.Featured = (scb == scores.FeaturedScore)
@@ -76,8 +75,8 @@ func GetScoreBoard(score_id string) (sb Scoreboard, ok bool) {
 }
 
 func GetFeaturedScoreboard() (sb Scoreboard, ok bool) {
-	locks.Data_Mutex.Lock()
-	defer locks.Data_Mutex.Unlock()
+	locks.Score_Mutex.Lock()
+	defer locks.Score_Mutex.Unlock()
 	if ok = scores.FeaturedScore != nil; ok {
 		sb = *scores.FeaturedScore
 	}
@@ -88,22 +87,21 @@ func GetFeaturedScoreboard() (sb Scoreboard, ok bool) {
 func SetScoreBoard(score_id string, new_board Scoreboard) Scoreboard {
 	id := strings.ToLower(score_id)
 	new_board.Id = score_id
-	locks.Data_Mutex.Lock()
-	defer locks.Data_Mutex.Unlock()
+	locks.Score_Mutex.Lock()
+	defer locks.Score_Mutex.Unlock()
 	scores.Scoreboards[id] = &Scoreboard{}
 	*scores.Scoreboards[id] = new_board
 	if scores.Scoreboards[id].Featured {
 		scores.FeaturedScore = scores.Scoreboards[id]
 	}
-	fmt.Println(scores)
 	return *scores.Scoreboards[id]
 }
 
 // Remove a scoreboard given its ID
 func DeleteScoreBoard(score_id string) (ok bool) {
 	id := strings.ToLower(score_id)
-	locks.Data_Mutex.Lock()
-	defer locks.Data_Mutex.Unlock()
+	locks.Score_Mutex.Lock()
+	defer locks.Score_Mutex.Unlock()
 	s, ok := scores.Scoreboards[id]
 	if ok {
 		if s == scores.FeaturedScore {
