@@ -18,6 +18,8 @@ func main() {
 	http.HandleFunc("/live", api.HandleConnection)
 	http.HandleFunc("/scores", api.HandleScoreboardRequest)
 	http.HandleFunc("/scores/", api.HandleScoreboardRequest)
+	http.HandleFunc("/brackets", api.HandleBracketRequest)
+	http.HandleFunc("/brackets/", api.HandleBracketRequest)
 
 	log.Println(fmt.Sprintf("Starting server on port %d", *port))
 	err := http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)

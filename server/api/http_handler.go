@@ -18,18 +18,25 @@ var param_regex *regexp.Regexp
 
 var v *validator.Validate = validator.New()
 
-func validatePut(b io.ReadCloser) (body data.Scoreboard, err_msg string) {
+func parseBody(ptr interface{}, b io.ReadCloser) (err_msg string) {
 	bytes, err := ioutil.ReadAll(b)
 	if err != nil {
 		err_msg = "Invalid JSON format"
 		return
 	}
+	e := json.Unmarshal(bytes, ptr)
+	if e != nil {
+		err_msg = e.Error()
+	}
+	return
+}
 
+func validatePutScore(b io.ReadCloser) (body data.Scoreboard, err_msg string) {
 	body = data.Scoreboard{}
-	err = json.Unmarshal(bytes, &body)
-	if err != nil {
-		err_msg = err.Error()
-	} else if err = v.Struct(body); err != nil {
+	err_msg = parseBody(&body, b)
+	if len(err_msg) > 0 {
+		// error found
+	} else if err := v.Struct(body); err != nil {
 		err_msg = "Invalid request body:"
 		for _, e := range err.(validator.ValidationErrors) {
 			err_msg = fmt.Sprintf("%s %s.", err_msg, e)
@@ -45,7 +52,22 @@ func validatePut(b io.ReadCloser) (body data.Scoreboard, err_msg string) {
 			err_msg = fmt.Sprintf("Invalid request body: %s", err_msg)
 		}
 	}
+	return
+}
 
+func validatePostPutBracket(b io.ReadCloser, method string) (body data.BracketDef, err_msg string) {
+	body = data.BracketDef{}
+	err_msg = parseBody(&body, b)
+	if len(err_msg) > 0 {
+		// error found
+	} else if err := v.Struct(body); err != nil {
+		err_msg = "Invalid request body:"
+		for _, e := range err.(validator.ValidationErrors) {
+			err_msg = fmt.Sprintf("%s %s.", err_msg, e)
+		}
+	} else if method == "POST" && len(body.Id) == 0 {
+		err_msg = "Missing required field match-id"
+	}
 	return
 }
 
@@ -109,7 +131,7 @@ func HandleScoreboardRequest(w http.ResponseWriter, r *http.Request) {
 		}
 	case "PUT":
 		if score_id, ok := path_params["score-id"]; ok {
-			body, err_msg := validatePut(r.Body)
+			body, err_msg := validatePutScore(r.Body)
 			if len(err_msg) > 0 {
 				BadRequest(w, err_msg)
 			} else {
@@ -139,12 +161,66 @@ func HandleScoreboardRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleBracketRequest(w http.ResponseWriter, r *http.Request) {
+	log.Println(fmt.Sprintf("%s request from %s to %s", r.Method, r.RemoteAddr, r.URL.Path))
+
+	path_params, err := getPathParams(r.URL.Path, "/brackets/{bracket-id}")
+	if err != nil {
+		InternalServerError(w)
+		return
+	}
 
 	switch r.Method {
 	case "GET":
-		break
-	case "PUT":
-		break
+		if bracket_id, ok := path_params["bracket-id"]; ok {
+			// get specific bracket
+			if b, exists := data.GetBracket(bracket_id); exists {
+				Ok(w, b)
+			} else {
+				NotFound(w, fmt.Sprintf("No scoreboard found for ID: %s", bracket_id))
+			}
+		} else {
+			// list all brackets
+			Ok(w, map[string][]string{"brackets": data.ListBrackets()})
+		}
+	case "POST": // create bracket if it doesn't exist, throw if it does
+		if _, ok := path_params["bracket-id"]; ok {
+			// bracket ID should be in body, not path, for POST
+			MethodNotAllowed(w)
+			return
+		}
+		body, err_msg := validatePostPutBracket(r.Body, r.Method)
+		if len(err_msg) > 0 {
+			BadRequest(w, err_msg)
+		} else if _, exists := data.GetBracket(body.Id); exists {
+			Conflict(w, fmt.Sprintf("Bracket %s already exists", body.Id))
+		} else {
+			b := data.GenerateBracket(body)
+			Ok(w, b)
+		}
+	case "PUT": // create a bracket if it doesn't exist, or reset bracket if it does exist
+		if bracket_id, ok := path_params["bracket-id"]; ok {
+			body, err_msg := validatePostPutBracket(r.Body, r.Method)
+			if len(err_msg) > 0 {
+				BadRequest(w, err_msg)
+			} else if _, ok := data.GetBracket(bracket_id); !ok {
+				NotFound(w, fmt.Sprintf("No bracket found for ID: %s", bracket_id))
+			} else {
+				body.Id = bracket_id
+				Ok(w, data.GenerateBracket(body))
+			}
+		} else {
+			BadRequest(w, "No bracket-id provided in path")
+		}
+	case "DELETE":
+		if bracket_id, ok := path_params["bracket-id"]; ok {
+			if del := data.DeleteBracket(bracket_id); del {
+				Ok(w, map[string]string{"message": fmt.Sprintf("Successfully deleted bracket ID: %s", bracket_id)})
+			} else {
+				NotFound(w, fmt.Sprintf("No scoreboard found for ID: %s", bracket_id))
+			}
+		} else {
+			BadRequest(w, "No bracket-id provided in path")
+		}
 	case "OPTIONS":
 		Ok(w, nil)
 	default:
