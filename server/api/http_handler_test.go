@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func mockRequest(method string, url string, body interface{}) (res *http.Response, err error) {
+func mockRequest(method string, url string, body interface{}, handler func(http.ResponseWriter, *http.Request)) (res *http.Response, err error) {
 	payload, err := json.Marshal(body)
 	if err != nil {
 		return
@@ -21,7 +21,7 @@ func mockRequest(method string, url string, body interface{}) (res *http.Respons
 		return
 	}
 	w := httptest.NewRecorder()
-	HandleScoreboardRequest(w, request)
+	handler(w, request)
 	res = w.Result()
 	return
 }
@@ -42,7 +42,7 @@ func TestCreateScoreboard(t *testing.T) {
 		},
 	}
 
-	response, err := mockRequest("PUT", fmt.Sprintf("/scores/%s", score_id), body)
+	response, err := mockRequest("PUT", fmt.Sprintf("/scores/%s", score_id), body, HandleScoreboardRequest)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -78,5 +78,69 @@ func TestCreateScoreboard(t *testing.T) {
 		if expected, actual := string(expected_bytes), string(actual_bytes); expected != actual {
 			t.Error(fmt.Sprintf("Struct mismatch for 'team' field.\nExpected: %s\nActual: %s", expected, actual))
 		}
+	}
+}
+
+func TestCreateBracket(t *testing.T) {
+	data.InitScores()
+
+	createPlayers := func(pool_size int) []string {
+		players := make([]string, pool_size)
+		for i := 0; i < pool_size; i++ {
+			players[i] = fmt.Sprintf("team%d", i+1)
+		}
+		return players
+	}
+
+	body := data.BracketDef{
+		Id:        "test-bracket",
+		MatchSize: 2,
+		Teams:     createPlayers(8),
+	}
+
+	response, err := mockRequest("POST", "/brackets", body, HandleBracketRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if response.StatusCode != 200 {
+		t.Fatalf(fmt.Sprintf("Expected status code: %d, actual status code: %d", 200, response.StatusCode))
+	}
+
+	defer response.Body.Close()
+	payload, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var result data.Bracket
+	err = json.Unmarshal(payload, &result)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// duplicate POST
+	response, err = mockRequest("POST", "/brackets", body, HandleBracketRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.StatusCode != 409 {
+		t.Fatalf(fmt.Sprintf("Expected status code: %d, actual status code: %d", 409, response.StatusCode))
+	}
+
+	response, err = mockRequest("PUT", "/brackets", body, HandleBracketRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.StatusCode != 400 {
+		t.Fatalf(fmt.Sprintf("Expected status code: %d, actual status code: %d", 400, response.StatusCode))
+	}
+
+	response, err = mockRequest("PUT", "/brackets/test-bracket", body, HandleBracketRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.StatusCode != 200 {
+		t.Fatalf(fmt.Sprintf("Expected status code: %d, actual status code: %d", 200, response.StatusCode))
 	}
 }

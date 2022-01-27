@@ -17,9 +17,12 @@ func createPlayers(pool_size int) []string {
 func TestCreateEvenBracket(t *testing.T) {
 	InitScores()
 
-	participants := createPlayers(8)
-
-	bracket := GenerateBracket("8-person", participants, 2)
+	bdef := BracketDef{
+		Id:        "8-person",
+		Teams:     createPlayers(8),
+		MatchSize: 2,
+	}
+	bracket := GenerateBracket(bdef)
 
 	if len(bracket.Rounds) != 3 {
 		t.Errorf("Invalid rount count. Expected: 3 | Actual: %d", len(bracket.Rounds))
@@ -37,9 +40,12 @@ func TestCreateEvenBracket(t *testing.T) {
 func TestOneByeBracket(t *testing.T) {
 	InitScores()
 
-	participants := createPlayers(7)
-
-	bracket := GenerateBracket("7-person", participants, 2)
+	bdef := BracketDef{
+		Id:        "7-person",
+		Teams:     createPlayers(7),
+		MatchSize: 2,
+	}
+	bracket := GenerateBracket(bdef)
 
 	if len(bracket.Rounds) != 3 {
 		t.Errorf("Invalid rount count. Expected: 3 | Actual: %d", len(bracket.Rounds))
@@ -54,7 +60,7 @@ func TestOneByeBracket(t *testing.T) {
 	sf1, ok := GetScoreBoard(bracket.Rounds[1].MatchIds[0])
 	if !ok {
 		t.Errorf("Missing scoreboard-id %s", bracket.Rounds[1].MatchIds[0])
-	} else if sf1.Teams[0].Name != participants[0] {
-		t.Errorf("Seeded player should be the first player in list, %s", participants[0])
+	} else if sf1.Teams[0].Name != bdef.Teams[0] {
+		t.Errorf("Seeded player should be the first player in list, %s", bdef.Teams[0])
 	}
 }

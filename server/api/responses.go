@@ -31,7 +31,7 @@ func res(w http.ResponseWriter, status int, body interface{}) error {
 	headers := [][]string{
 		{"Content-Type", "application/json"},
 		{"Access-Control-Allow-Origin", "*"},
-		{"Access-Control-Allow-Methods", "GET, PUT, DELETE, OPTIONS"},
+		{"Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"},
 		{"Access-Control-Allow-Credentials", "true"},
 		{"Access-Control-Allow-Headers", "Content-Type, origin, authorization, accept"},
 	}
@@ -81,6 +81,12 @@ func NotFound(w http.ResponseWriter, msg string) (err error) {
 // HTTP 405 Method Not Allowed Response
 func MethodNotAllowed(w http.ResponseWriter) (err error) {
 	err = errRes(w, 405, "Method Not Allowed")
+	return
+}
+
+// HTTP 409 Conflict Response
+func Conflict(w http.ResponseWriter, msg string) (err error) {
+	err = errRes(w, 409, msg)
 	return
 }
 
