@@ -1,0 +1,60 @@
+package data
+
+import (
+	"fmt"
+	"testing"
+)
+
+func createPlayers(pool_size int) []string {
+	players := make([]string, pool_size)
+	for i := 0; i < pool_size; i++ {
+		players[i] = fmt.Sprintf("team%d", i+1)
+	}
+	return players
+}
+
+// create bracket with evenly divided teams
+func TestCreateEvenBracket(t *testing.T) {
+	InitScores()
+
+	participants := createPlayers(8)
+
+	bracket := GenerateBracket("8-person", participants, 2)
+
+	if len(bracket.Rounds) != 3 {
+		t.Errorf("Invalid rount count. Expected: 3 | Actual: %d", len(bracket.Rounds))
+	}
+
+	match_counts := []int{4, 2, 1}
+	for i, mc := range match_counts {
+		if len(bracket.Rounds[i].MatchIds) != mc {
+			t.Errorf("Invalid count for Round %d. Expected: %d | Actual: %d", i+1, mc, len(bracket.Rounds[i].MatchIds))
+		}
+	}
+}
+
+// create bracket with #1 seed having first round bye
+func TestOneByeBracket(t *testing.T) {
+	InitScores()
+
+	participants := createPlayers(7)
+
+	bracket := GenerateBracket("7-person", participants, 2)
+
+	if len(bracket.Rounds) != 3 {
+		t.Errorf("Invalid rount count. Expected: 3 | Actual: %d", len(bracket.Rounds))
+	}
+
+	match_counts := []int{3, 2, 1}
+	for i, mc := range match_counts {
+		if len(bracket.Rounds[i].MatchIds) != mc {
+			t.Errorf("Invalid count for Round %d. Expected: %d | Actual: %d", i+1, mc, len(bracket.Rounds[i].MatchIds))
+		}
+	}
+	sf1, ok := GetScoreBoard(bracket.Rounds[1].MatchIds[0])
+	if !ok {
+		t.Errorf("Missing scoreboard-id %s", bracket.Rounds[1].MatchIds[0])
+	} else if sf1.Teams[0].Name != participants[0] {
+		t.Errorf("Seeded player should be the first player in list, %s", participants[0])
+	}
+}

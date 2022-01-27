@@ -75,7 +75,7 @@ func getPathParams(url string, template string) (path_params map[string]string, 
 }
 
 // Handler for HTTP REST requests for scores
-func HandleRequest(w http.ResponseWriter, r *http.Request) {
+func HandleScoreboardRequest(w http.ResponseWriter, r *http.Request) {
 	log.Println(fmt.Sprintf("%s request from %s to %s", r.Method, r.RemoteAddr, r.URL.Path))
 
 	path_params, err := getPathParams(r.URL.Path, "/scores/{score-id}")
@@ -131,6 +131,20 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 		} else {
 			BadRequest(w, "No score-id provided in path")
 		}
+	case "OPTIONS":
+		Ok(w, nil)
+	default:
+		MethodNotAllowed(w)
+	}
+}
+
+func HandleBracketRequest(w http.ResponseWriter, r *http.Request) {
+
+	switch r.Method {
+	case "GET":
+		break
+	case "PUT":
+		break
 	case "OPTIONS":
 		Ok(w, nil)
 	default:

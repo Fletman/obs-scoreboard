@@ -21,7 +21,7 @@ func mockRequest(method string, url string, body interface{}) (res *http.Respons
 		return
 	}
 	w := httptest.NewRecorder()
-	HandleRequest(w, request)
+	HandleScoreboardRequest(w, request)
 	res = w.Result()
 	return
 }
