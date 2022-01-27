@@ -2,8 +2,8 @@ package locks
 
 import "sync"
 
-var Broadcast_mutex sync.Mutex
+var Broadcast_Mutex sync.Mutex
 
-var Score_Mutex sync.Mutex
+var Score_Mutex sync.RWMutex
 
-var Bracket_Mutex sync.Mutex
+var Bracket_Mutex sync.RWMutex

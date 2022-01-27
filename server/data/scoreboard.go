@@ -35,8 +35,8 @@ func InitScores() {
 
 // Return list of all current scoreboards
 func GetScoreList() []Scoreboard {
-	locks.Score_Mutex.Lock()
-	defer locks.Score_Mutex.Unlock()
+	locks.Score_Mutex.RLock()
+	defer locks.Score_Mutex.RUnlock()
 	list := make([]Scoreboard, len(scores.Scoreboards))
 	i := 0
 	for _, s := range scores.Scoreboards {
@@ -50,8 +50,8 @@ func GetScoreList() []Scoreboard {
 // Return list of scoreboards containing only supplied score-ids
 func GetFilteredScoreList(score_ids []string) []Scoreboard {
 	list := []Scoreboard{}
-	locks.Score_Mutex.Lock()
-	defer locks.Score_Mutex.Unlock()
+	locks.Score_Mutex.RLock()
+	defer locks.Score_Mutex.RUnlock()
 	for _, id := range score_ids {
 		if s, ok := scores.Scoreboards[id]; ok {
 			s.Featured = (s == scores.FeaturedScore)
@@ -64,8 +64,8 @@ func GetFilteredScoreList(score_ids []string) []Scoreboard {
 // Return a scoreboard given its ID
 func GetScoreBoard(score_id string) (sb Scoreboard, ok bool) {
 	id := strings.ToLower(score_id)
-	locks.Score_Mutex.Lock()
-	defer locks.Score_Mutex.Unlock()
+	locks.Score_Mutex.RLock()
+	defer locks.Score_Mutex.RUnlock()
 	scb, ok := scores.Scoreboards[id]
 	if ok {
 		scb.Featured = (scb == scores.FeaturedScore)
@@ -75,8 +75,8 @@ func GetScoreBoard(score_id string) (sb Scoreboard, ok bool) {
 }
 
 func GetFeaturedScoreboard() (sb Scoreboard, ok bool) {
-	locks.Score_Mutex.Lock()
-	defer locks.Score_Mutex.Unlock()
+	locks.Score_Mutex.RLock()
+	defer locks.Score_Mutex.RUnlock()
 	if ok = scores.FeaturedScore != nil; ok {
 		sb = *scores.FeaturedScore
 	}
