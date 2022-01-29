@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"scoreboard/data"
+	ujson "scoreboard/util/json"
 	"testing"
 )
 
@@ -48,7 +49,7 @@ func TestCreateScoreboard(t *testing.T) {
 	}
 
 	if response.StatusCode != 200 {
-		t.Fatalf(fmt.Sprintf("Expected status code: %d, actual status code: %d", 200, response.StatusCode))
+		t.Fatalf("Expected status code: %d, actual status code: %d", 200, response.StatusCode)
 	}
 
 	defer response.Body.Close()
@@ -63,20 +64,20 @@ func TestCreateScoreboard(t *testing.T) {
 	}
 
 	if result.Id != score_id {
-		t.Error(fmt.Sprintf("Field 'score-id' should have value '%s', was '%s'", score_id, result.Id))
+		t.Errorf("Field 'score-id' should have value '%s', was '%s'", score_id, result.Id)
 	}
 	if *result.Completed != false {
-		t.Error(fmt.Sprintf("Field 'completed' should have value 'false', was '%t'", *result.Completed))
+		t.Errorf("Field 'completed' should have value 'false', was '%t'", *result.Completed)
 	}
 	if result.Featured != false {
-		t.Error(fmt.Sprintf("Field 'featured' should have value 'false', was '%t'", result.Featured))
+		t.Errorf("Field 'featured' should have value 'false', was '%t'", result.Featured)
 	}
 	for i, team := range body.Teams {
 		expected_bytes, _ := json.Marshal(team)
 		actual_bytes, _ := json.Marshal(result.Teams[i])
 
 		if expected, actual := string(expected_bytes), string(actual_bytes); expected != actual {
-			t.Error(fmt.Sprintf("Struct mismatch for 'team' field.\nExpected: %s\nActual: %s", expected, actual))
+			t.Errorf("Struct mismatch for 'team' field.\nExpected: %s\nActual: %s", expected, actual)
 		}
 	}
 }
@@ -104,7 +105,7 @@ func TestCreateBracket(t *testing.T) {
 	}
 
 	if response.StatusCode != 200 {
-		t.Fatalf(fmt.Sprintf("Expected status code: %d, actual status code: %d", 200, response.StatusCode))
+		t.Fatalf("Expected status code: %d, actual status code: %d", 200, response.StatusCode)
 	}
 
 	defer response.Body.Close()
@@ -125,7 +126,7 @@ func TestCreateBracket(t *testing.T) {
 		t.Fatal(err)
 	}
 	if response.StatusCode != 409 {
-		t.Fatalf(fmt.Sprintf("Expected status code: %d, actual status code: %d", 409, response.StatusCode))
+		t.Fatalf("Expected status code: %d, actual status code: %d", 409, response.StatusCode)
 	}
 
 	response, err = mockRequest("PUT", "/brackets", body, HandleBracketRequest)
@@ -133,7 +134,7 @@ func TestCreateBracket(t *testing.T) {
 		t.Fatal(err)
 	}
 	if response.StatusCode != 400 {
-		t.Fatalf(fmt.Sprintf("Expected status code: %d, actual status code: %d", 400, response.StatusCode))
+		t.Fatalf("Expected status code: %d, actual status code: %d", 400, response.StatusCode)
 	}
 
 	response, err = mockRequest("PUT", "/brackets/test-bracket", body, HandleBracketRequest)
@@ -141,6 +142,67 @@ func TestCreateBracket(t *testing.T) {
 		t.Fatal(err)
 	}
 	if response.StatusCode != 200 {
-		t.Fatalf(fmt.Sprintf("Expected status code: %d, actual status code: %d", 200, response.StatusCode))
+		t.Fatalf("Expected status code: %d, actual status code: %d", 200, response.StatusCode)
+	}
+}
+
+func TestCreateMultipleBrackets(t *testing.T) {
+	data.InitScores()
+
+	createPlayers := func(pool_size int) []string {
+		players := make([]string, pool_size)
+		for i := 0; i < pool_size; i++ {
+			players[i] = fmt.Sprintf("team%d", i+1)
+		}
+		return players
+	}
+
+	body_1 := data.BracketDef{
+		Id:        "test-bracket-1",
+		MatchSize: 2,
+		Teams:     createPlayers(8),
+	}
+	body_2 := data.BracketDef{
+		Id:        "test-bracket-2",
+		MatchSize: 2,
+		Teams:     createPlayers(16),
+	}
+
+	response_1, err := mockRequest("POST", "/brackets", body_1, HandleBracketRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response_1.StatusCode != 200 {
+		t.Fatalf("Expected status code: %d, actual status code: %d", 200, response_1.StatusCode)
+	}
+	response_2, err := mockRequest("POST", "/brackets", body_2, HandleBracketRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response_2.StatusCode != 200 {
+		t.Fatalf("Expected status code: %d, actual status code: %d", 200, response_2.StatusCode)
+	}
+
+	list_response, err := mockRequest("GET", "/brackets", nil, HandleBracketRequest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if list_response.StatusCode != 200 {
+		t.Fatalf("Expected status code: %d, actual status code: %d", 200, response_1.StatusCode)
+	}
+
+	payload, err := ioutil.ReadAll(list_response.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res_map, err := ujson.JsonToMap(payload)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bracket_ids := res_map["brackets"].([]interface{})
+	for i, b_id := range bracket_ids {
+		if b_id.(string) == "" {
+			t.Errorf("Empty string found at index %d in response", i)
+		}
 	}
 }

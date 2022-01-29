@@ -31,7 +31,7 @@ type BracketDef struct {
 	Teams     []string `json:"teams" validate:"required"`
 }
 
-var brackets map[string]*Bracket = make(map[string]*Bracket)
+var brackets map[string]Bracket = make(map[string]Bracket)
 
 // Declare constraints for bracket:
 //
@@ -45,7 +45,6 @@ func getConstraints(participants []string, match_size int) constraints {
 
 	c.RoundCount = int(math.Ceil(math.Log(float64(c.PoolSize) / math.Log(float64(match_size)))))
 	c.BracketConstraint = int(math.Pow(float64(match_size), float64(c.RoundCount)))
-	fmt.Println(c)
 	bye_count := c.BracketConstraint - c.PoolSize
 	c.Byes = participants[:bye_count]
 	c.ByeCount = len(c.Byes)
@@ -75,6 +74,7 @@ func ListBrackets() []string {
 	i := 0
 	for _, b := range brackets {
 		bracket_ids[i] = b.Id
+		i++
 	}
 	sort.Strings(bracket_ids)
 	return bracket_ids
@@ -85,17 +85,14 @@ func GetBracket(bracket_id string) (bracket Bracket, ok bool) {
 	id := strings.ToLower(bracket_id)
 	locks.Bracket_Mutex.RLock()
 	defer locks.Bracket_Mutex.RUnlock()
-	bracket_ptr, ok := brackets[id]
-	if ok {
-		bracket = *bracket_ptr
-	}
+	bracket, ok = brackets[id]
 	return
 }
 
-func GenerateBracket(bdef BracketDef) *Bracket {
+func GenerateBracket(bdef BracketDef) Bracket {
 	c := getConstraints(bdef.Teams, bdef.MatchSize)
 
-	bracket := &Bracket{Id: bdef.Id, Rounds: make([]Round, c.RoundCount)}
+	bracket := Bracket{Id: bdef.Id, Rounds: make([]Round, c.RoundCount)}
 
 	// allocate space for Rounds
 	r1_match_count := int((c.PoolSize - c.ByeCount) / bdef.MatchSize)
