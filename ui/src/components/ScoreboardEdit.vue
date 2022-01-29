@@ -8,8 +8,8 @@
         <table id="edit-menu" class="secondary-halo-font">
           <tr class="score-checkbox-row">
             <td>
-              <button style="margin-right:10px;" class="score-button-input secondary-halo-font" v-on:click="return_home">Back </button>
-              <button class="score-button-input secondary-halo-font" v-on:click="delete_scoreboard">Delete</button>
+              <button style="margin-right:10px;" class="halo-button-input secondary-halo-font" v-on:click="return_home">Back </button>
+              <button class="halo-button-input secondary-halo-font" v-on:click="delete_scoreboard">Delete</button>
             </td>
           </tr>
           <tr class="score-checkbox-row">
@@ -27,17 +27,17 @@
           <tr v-for="(team, index) in score_data.teams" :key="index">
             <td><input style="width:100%;" class="score-text-input secondary-halo-font" type="text" :readonly="score_data.completed" v-model="team.name" required/></td>
             <td>
-              <span class="score-button-input" v-on:click="score_increment(index, -1)">−</span>
+              <span class="halo-button-input" v-on:click="score_increment(index, -1)">−</span>
               <input class="score-text-input secondary-halo-font" type="number" :readonly="score_data.completed" v-model="team.score"/>
-              <span class="score-button-input" :disabled="score_data.completed" v-on:click="score_increment(index, 1)">+</span>
+              <span class="halo-button-input" :disabled="score_data.completed" v-on:click="score_increment(index, 1)">+</span>
             </td>
             <td style="text-align:left;">
-              <span class="score-button-input" :disabled="score_data.completed" v-on:click="remove_team(index)">X</span>
+              <span class="halo-button-input" :disabled="score_data.completed" v-on:click="remove_team(index)">X</span>
             </td>
           </tr>
           <tr>
             <td colspan="3">
-              <button class="score-button-input secondary-halo-font" v-on:click="add_team">Add Team</button>
+              <button class="halo-button-input secondary-halo-font" v-on:click="add_team">Add Team</button>
             </td>
           </tr>
         </table>
@@ -112,7 +112,7 @@ export default {
       if(window.confirm(`Are you sure you want to delete ${this.score_data['score-id']}?`)) {
         this.handler.remove_scoreboard(this.score_data['score-id'])
           .then(() => {
-            this.$router.replace('/');
+            this.$router.replace('/scores');
           }).catch((err) => {
             console.error(err);
           });
@@ -120,12 +120,12 @@ export default {
     },
 
     return_home() {
-      this.$router.push('/');
+      this.$router.push('/scores');
     }
   },
 
   created() {
-      console.log("Loading ScoreboardEdit");
+
   },
 
   computed: {
@@ -151,25 +151,6 @@ export default {
   #edit-menu td {
     width: 40%;
     padding: 10px 10px;
-  }
-
-  .score-button-input {
-    padding: 5px;
-    font-size: 1.25em;
-    background-color: #172030;
-    color: white;
-    border: solid 1px gray;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
-  .score-button-input:hover {
-    cursor: pointer;
-    background: #394252;
   }
   
   .score-checkbox-row {

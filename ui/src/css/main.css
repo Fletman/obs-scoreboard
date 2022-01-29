@@ -41,6 +41,30 @@ header {
   overflow-y: auto;
 }
 
+.halo-button-input {
+  padding: 5px;
+  font-size: 1.25em;
+  background-color: #172030;
+  color: white;
+  border: solid 1px gray;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.halo-button-input:hover {
+  cursor: pointer;
+  background: #394252;
+}
+
+.link-style {
+  text-decoration: none;
+  color: inherit;
+}
+
 .scoreboard {
   padding: 2px;
   text-align: center;

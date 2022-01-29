@@ -100,4 +100,21 @@ module.exports = class ScoreboardAPI {
             throw(body.message);
         }
     }
+
+    /**
+     * Retrieve a list of current bracket IDs
+     * @returns {string[]} List of available bracket IDs
+     */
+    async list_brackets() {
+        const url = `${this.host}/brackets`;
+        const params = { method: 'GET' };
+        const response = await fetch(url, params);
+        const body = await response.json();
+        if(response.status === 200) {
+            return body.brackets;
+        } else if(response.status === 409) {
+            window.alert(body.message);
+        }
+        throw(body.message);
+    }
 }
