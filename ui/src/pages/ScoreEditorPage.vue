@@ -1,6 +1,7 @@
 <template>
   <div id="main">
     <div id="main-view">
+      <NavComponent/>
       <ScoreboardEdit
         v-if="active_scoreboard"
         class="scoreboard"
@@ -14,12 +15,14 @@
 <script>
 import ScoreboardAPI from '../js/api';
 import ScoreListener from '../js/listener';
-import ScoreboardEdit from '../components/ScoreboardEdit.vue'
+import ScoreboardEdit from '../components/ScoreboardEdit.vue';
+import NavComponent from '../components/NavComponent.vue';
 
 export default {
   name: 'ScoreEditorPage',
   components: {
-    ScoreboardEdit
+    ScoreboardEdit,
+    NavComponent
   },
 
   data() {

@@ -63,17 +63,13 @@ export default {
     }
   },
 
-  created() {
-    console.log("Loading ScoreboardItem");
-  },
-
   computed: {
     view_link() {
-      return `/view/${this.data['score-id']}`;
+      return `/scores/${this.data['score-id']}/view`;
     },
 
     edit_link() {
-      return `/edit/${this.data['score-id']}`;
+      return `/scores/${this.data['score-id']}/edit`;
     }
   }
 }

@@ -1,6 +1,7 @@
 <template>
   <div id="main">
     <div id="main-view">
+      <NavComponent/>
       <header class="primary-halo-font">
         <h1 class="title text-glow">HALO</h1>
         <h3 class="title text-glow">Tournament of the Chosen</h3>
@@ -25,11 +26,13 @@
 import ScoreboardAPI from '../js/api';
 import ScoreListener from '../js/listener';
 import ScoreboardItem from '../components/ScoreboardItem.vue';
+import NavComponent from '../components/NavComponent.vue';
 
 export default {
   name: 'ScoreGridPage',
   components: {
-    ScoreboardItem
+    ScoreboardItem,
+    NavComponent
   },
 
   data() {
@@ -70,7 +73,7 @@ export default {
                 featured: false
               }
             ).then(() => {
-              this.$router.push(`/edit/${score_id}`);
+              this.$router.push(`/scores/${score_id}/edit`);
             }).catch((err) => {
               console.error(err);
             });
