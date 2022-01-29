@@ -48,7 +48,7 @@ module.exports = class ScoreboardAPI {
 
     /**
      * Retrieve the featured scoreboard, or null if no scoreboard is currently featured
-     * @returns {Object} Scoreboard object
+     * @returns {Promise<Object>} Scoreboard object
      */
     async get_featured_scoreboard() {
         const url = `${this.host}/scores?featured=true`;
@@ -103,7 +103,7 @@ module.exports = class ScoreboardAPI {
 
     /**
      * Retrieve a list of current bracket IDs
-     * @returns {string[]} List of available bracket IDs
+     * @returns {Promise<string[]>} List of available bracket IDs
      */
     async list_brackets() {
         const url = `${this.host}/brackets`;
@@ -116,5 +116,22 @@ module.exports = class ScoreboardAPI {
             window.alert(body.message);
         }
         throw(body.message);
+    }
+
+    /**
+     * Given an ID, return that bracket
+     * @param {string} id ID of bracket
+     * @returns {Promise<Object>}
+     */
+    async get_bracket(id) {
+        const url = `${this.host}/brackets/${id}`;
+        const params = { method: 'GET' };
+        const response = await fetch(url, params);
+        const body = await response.json();
+        if(response.status != 200) {
+            throw(body.message);
+        } else {
+            return body;
+        }
     }
 }
