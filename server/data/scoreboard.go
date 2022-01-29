@@ -53,7 +53,7 @@ func GetFilteredScoreList(score_ids []string) []Scoreboard {
 	locks.Score_Mutex.RLock()
 	defer locks.Score_Mutex.RUnlock()
 	for _, id := range score_ids {
-		if s, ok := scores.Scoreboards[id]; ok {
+		if s, ok := scores.Scoreboards[strings.ToLower(id)]; ok {
 			s.Featured = (s == scores.FeaturedScore)
 			list = append(list, *s)
 		}
