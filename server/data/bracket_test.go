@@ -57,10 +57,8 @@ func TestOneByeBracket(t *testing.T) {
 			t.Errorf("Invalid count for Round %d. Expected: %d | Actual: %d", i+1, mc, len(bracket.Rounds[i].MatchIds))
 		}
 	}
-	sf1, ok := GetScoreBoard(bracket.Rounds[1].MatchIds[0])
+	_, ok := GetScoreBoard(bracket.Rounds[1].MatchIds[0])
 	if !ok {
 		t.Errorf("Missing scoreboard-id %s", bracket.Rounds[1].MatchIds[0])
-	} else if sf1.Teams[0].Name != bdef.Teams[0] {
-		t.Errorf("Seeded player should be the first player in list, %s", bdef.Teams[0])
 	}
 }
