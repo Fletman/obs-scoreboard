@@ -27,6 +27,7 @@ type Bracket struct {
 
 type BracketDef struct {
 	Id        string   `json:"bracket-id"`                     // Bracket ID
+	PoolSize  int      `json:"pool-size"`                      // total number of participants in bracket (TODO: currently not in use)
 	MatchSize int      `json:"match-size" validate:"required"` // number of players per match
 	Teams     []string `json:"teams"`                          // bracket participants ordered by seeding
 }
@@ -42,7 +43,7 @@ var brackets map[string]Bracket = make(map[string]Bracket)
 // - byes
 func getConstraints(participants []string, match_size int) constraints {
 	c := constraints{PoolSize: len(participants)}
-	c.RoundCount = int(math.Ceil(math.Log(float64(c.PoolSize) / math.Log(float64(match_size)))))
+	c.RoundCount = int(math.Ceil(math.Log(float64(c.PoolSize)) / math.Log(float64(match_size))))
 	c.BracketSize = int(math.Pow(float64(match_size), float64(c.RoundCount)))
 	bye_count := c.BracketSize - c.PoolSize
 	c.Byes = participants[:bye_count]
