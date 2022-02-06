@@ -185,8 +185,12 @@ func GenerateBracket(bdef BracketDef) Bracket {
 				is_bye := len(sb.Teams) < bdef.MatchSize
 				sb.Completed = &is_bye
 			} else {
+				sb.Teams = make([]Score, bdef.MatchSize)
+				for t := range sb.Teams {
+					var s float32 = 0
+					sb.Teams[t] = Score{Name: "TBD", Score: &s}
+				}
 				completed := false
-				sb.Teams = []Score{}
 				sb.Completed = &completed
 			}
 			SetScoreBoard(match_id, sb)
