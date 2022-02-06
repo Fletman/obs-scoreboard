@@ -51,7 +51,7 @@ func TestOneByeBracket(t *testing.T) {
 		t.Errorf("Invalid rount count. Expected: 3 | Actual: %d", len(bracket.Rounds))
 	}
 
-	match_counts := []int{3, 2, 1}
+	match_counts := []int{4, 2, 1}
 	for i, mc := range match_counts {
 		if len(bracket.Rounds[i].MatchIds) != mc {
 			t.Errorf("Invalid count for Round %d. Expected: %d | Actual: %d", i+1, mc, len(bracket.Rounds[i].MatchIds))

@@ -27,7 +27,6 @@ type Bracket struct {
 
 type BracketDef struct {
 	Id        string   `json:"bracket-id"`                     // Bracket ID
-	PoolSize  int      `json:"pool-size"`                      // total number of participants in bracket (TODO: currently not in use)
 	MatchSize int      `json:"match-size" validate:"required"` // number of players per match
 	Teams     []string `json:"teams"`                          // bracket participants ordered by seeding
 }
@@ -68,34 +67,77 @@ func getMatchID(bracket_id string, round_index int, match_index int, c constrain
 
 // Allocate space for each round
 func allocateRound(bdef BracketDef, c constraints, round_index int) Round {
-	var match_count int
-	if round_index == 0 {
-		// check for first round byes before allocation
-		match_count = int((c.PoolSize - c.ByeCount) / bdef.MatchSize)
-	} else {
-		match_count = int(c.BracketSize / int(math.Pow(float64(bdef.MatchSize), float64(round_index+1))))
-	}
+	match_count := int(c.BracketSize / int(math.Pow(float64(bdef.MatchSize), float64(round_index+1))))
 	return Round{MatchIds: make([]string, match_count)}
 }
 
-// Sort seeds in the order they should play each other
-// TODO: always assumes match size of 2 currently
-// TODO: will maybe come back to this at a later date? Not used for now
-/*
-func seedOrdering(bdef BracketDef, c constraints) []int {
-	seeds := []int{1, 2}
-	for i := 0; i < c.RoundCount; i++ {
-		var match_seeds []int
-		l := len(seeds) + 1
-		for _, seed := range seeds {
-			match_seeds = append(match_seeds, seed)
-			match_seeds = append(match_seeds, l-seed)
-		}
-		seeds = match_seeds
+// Check if a given seed has a bye round
+// If yes, return -1; if no, return player seed
+func checkForBye(seed int, pool_size int) int {
+	if seed <= pool_size {
+		return seed
+	} else {
+		return -1
 	}
-	return seeds[:c.BracketSize]
 }
-*/
+
+// Translate a seed to a team name
+func getSeedNames(seed_names []string, seeds []int) []string {
+	names := make([]string, len(seeds))
+	for i, s := range seeds {
+		if s > 0 {
+			names[i] = fmt.Sprintf("[%d] %s", s, seed_names[s-1])
+		} else {
+			names[i] = "Bye" // NOTE: byes are currently filtered out so this isn't used
+		}
+	}
+	return names
+}
+
+// Generate first-round seeded matchups, including first-round byes
+// TODO: currently only functional for match sizes of 2
+func getStartingMatches(bdef BracketDef, c constraints) [][]string {
+	if c.PoolSize < bdef.MatchSize {
+		matchup := make([]string, c.PoolSize)
+		for i, t := range bdef.Teams {
+			matchup[i] = t
+		}
+		return [][]string{matchup}
+	}
+
+	seed_matchups := [][]int{{1, 2}} // start from final matchup, featuring 1 vs 2 seed
+	for r := 1; r < c.RoundCount; r++ {
+		round_matchups := [][]int{}
+		max_seed := int(math.Pow(float64(bdef.MatchSize), float64(r+1)) + 1)
+		for _, sm := range seed_matchups {
+			//upper half draw
+			seed_1 := checkForBye(sm[0], c.PoolSize)
+			seed_2 := checkForBye(max_seed-sm[0], c.PoolSize)
+			if seed_2 == -1 {
+				round_matchups = append(round_matchups, []int{seed_1})
+			} else {
+				round_matchups = append(round_matchups, []int{seed_1, seed_2})
+			}
+
+			// bottom half draw
+			seed_1 = checkForBye(max_seed-sm[1], c.PoolSize)
+			seed_2 = checkForBye(sm[1], c.PoolSize)
+			if seed_1 == -1 {
+				round_matchups = append(round_matchups, []int{seed_2})
+			} else {
+				round_matchups = append(round_matchups, []int{seed_1, seed_2})
+			}
+
+		}
+		seed_matchups = round_matchups
+	}
+
+	team_matchups := make([][]string, len(seed_matchups))
+	for i, sm := range seed_matchups {
+		team_matchups[i] = getSeedNames(bdef.Teams, sm)
+	}
+	return team_matchups
+}
 
 // Retrieve a list of bracket-ids
 func ListBrackets() []string {
@@ -125,17 +167,27 @@ func GenerateBracket(bdef BracketDef) Bracket {
 
 	bracket := Bracket{Id: bdef.Id, Rounds: make([]Round, c.RoundCount)}
 
+	starting_matches := getStartingMatches(bdef, c)
+
 	// Generate match-ids for every match, per round
 	for i := 0; i < c.RoundCount; i++ {
 		bracket.Rounds[i] = allocateRound(bdef, c, i)
 		for j := 0; j < len(bracket.Rounds[i].MatchIds); j++ {
 			match_id := getMatchID(bdef.Id, i, j, c)
-			completed := false
-			sb := Scoreboard{
-				Id:        match_id,
-				Teams:     []Score{},
-				Completed: &completed,
-				Featured:  false,
+			sb := Scoreboard{Id: match_id, Featured: false}
+			if i == 0 {
+				// initialize first round matches
+				sb.Teams = make([]Score, len(starting_matches[j]))
+				for k, team_name := range starting_matches[j] {
+					var s float32 = 0
+					sb.Teams[k] = Score{Name: team_name, Score: &s}
+				}
+				is_bye := len(sb.Teams) < bdef.MatchSize
+				sb.Completed = &is_bye
+			} else {
+				completed := false
+				sb.Teams = []Score{}
+				sb.Completed = &completed
 			}
 			SetScoreBoard(match_id, sb)
 			bracket.Rounds[i].MatchIds[j] = match_id
