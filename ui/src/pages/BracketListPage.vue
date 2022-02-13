@@ -8,14 +8,17 @@
         <h6 class="title">Sponsored by Flet Inc.™</h6>
       </header>
       <div class="bracket-menu-row">
-        <input type="button" class="halo-button-input secondary-halo-font" value="Create New Bracket" v-on:click="create_bracket"/>
+        <input type="button" class="halo-button-input secondary-halo-font" value="Create New Bracket" v-on:click="toggle_creator"/>
+      </div>
+      <div class="bracket-menu-row">
+        <BracketCreator :visible="show_creator"/>
       </div>
       <div style="grid-template-columns:90% 10%" class="bracket-menu-row">
         <input type="text" id="bracket-search-input" class="secondary-halo-font" placeholder="Search for a bracket" v-model="search_id"/>
         <input type="button" class="halo-button-input secondary-halo-font" value="↻" v-on:click="load_brackets"/>
       </div>
       <div id="bracket-list" class="bracket-menu-row">
-        <router-link class="link-style" v-for="id in search_ids" :key="id" :to="`/brackets/${id}`">
+        <router-link class="link-style" v-for="id in search_ids" :key="id" :to="`/brackets/${id}/edit`">
           <div class="bracket-item secondary-halo-font">
             {{ id }}
           </div>
@@ -28,11 +31,13 @@
 <script>
 import ScoreboardAPI from '../js/api';
 import NavComponent from '../components/NavComponent.vue';
+import BracketCreator from '../components/BracketCreator.vue';
 
 export default {
   name: 'BracketListPage',
   components: {
-    NavComponent
+    NavComponent,
+    BracketCreator
   },
 
   data() {
@@ -41,15 +46,15 @@ export default {
 
       search_id: "",
 
-      bracket_ids: []
+      bracket_ids: [],
+
+      show_creator: false
     }
   },
 
   methods: {
-    create_bracket() {
-      const bracket_id = window.prompt("Enter a bracket name");
-      if(!bracket_id) { return; }
-      console.log(bracket_id);
+    toggle_creator() {
+      this.show_creator = !this.show_creator;
     },
 
     load_brackets() {

@@ -8,7 +8,7 @@
         <table id="edit-menu" class="secondary-halo-font">
           <tr class="score-checkbox-row">
             <td>
-              <button style="margin-right:10px;" class="halo-button-input secondary-halo-font" v-on:click="return_home">Back </button>
+              <button style="margin-right:10px;" class="halo-button-input secondary-halo-font" v-on:click="$router.back()">Back</button>
               <button class="halo-button-input secondary-halo-font" v-on:click="delete_scoreboard">Delete</button>
             </td>
           </tr>
@@ -117,10 +117,6 @@ export default {
             console.error(err);
           });
       }
-    },
-
-    return_home() {
-      this.$router.push('/scores');
     }
   },
 
