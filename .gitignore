@@ -28,3 +28,6 @@ pnpm-debug.log*
 *.sw?
 .vs
 .DS_Store
+
+# Misc
+auth_resources
