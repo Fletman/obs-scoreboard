@@ -1,9 +1,11 @@
 <template>
   <div class="scoreboard-listed">
-    <span id="featured-marker" v-if="data.featured">💫</span>
-    <router-link id="edit-button" :to="edit_link">
-      <img src="../assets/edit_icon.webp" alt="Edit Score"/>
-    </router-link>
+    <div>
+      <span id="featured-marker" v-if="data.featured">💫</span>
+      <router-link id="edit-button" :to="edit_link">
+        <img src="../assets/edit_icon.webp" alt="Edit Score"/>
+      </router-link>
+    </div>
     <router-link id="score-id" class="primary-halo-font" :to="view_link">
       {{ scoreId }}
     </router-link>
@@ -46,7 +48,7 @@ export default {
   methods: {
     is_winner(i) {
       let winner = {
-        score: Number.MIN_VALUE,
+        score: Number.MIN_SAFE_INTEGER,
         index: -1
       };
       this.data.teams.forEach((team, index) => {
@@ -79,10 +81,9 @@ export default {
   @import '../css/fonts.css';
 
   #edit-button {
-    position: absolute;
-    top: 0px;
-    right: 0px;
     padding: 1px;
+    clear: right;
+    float: right;
   }
 
   #edit-button img {
@@ -96,9 +97,7 @@ export default {
   }
 
   #featured-marker {
-    position: absolute;
-    top: 0px;
-    left: 0px;
+    float: left;
   }
 
   #score-id {

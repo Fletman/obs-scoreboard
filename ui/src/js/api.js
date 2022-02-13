@@ -1,4 +1,3 @@
-
 /**
  * Class for handling HTTP interaction with Scoreboard API
  */
@@ -14,11 +13,15 @@ module.exports = class ScoreboardAPI {
 
     /**
      * Retrieve list of scoreboards
+     * @param {string[]?} score_ids Optional list of score-ids to filter in request
      * @returns {Promise<Object>} Map of scoreboard objects 
      */
-    async list_scoreboards() {
-        const url = `${this.host}/scores`;
-        const response = await fetch(url, {method: 'GET'});
+    async list_scoreboards(score_ids = null) {
+        const url = score_ids && score_ids.length > 0 ?
+            `${this.host}/scores?${score_ids.map((id) => `score-id=${id}`).join('&')}`:
+            `${this.host}/scores`;
+        const params = { method: 'GET' };
+        const response = await fetch(url, params);
         const body = await response.json();
         return body.scoreboards;
     }
