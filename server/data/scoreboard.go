@@ -9,6 +9,7 @@ import (
 type Score struct {
 	Name  string   `json:"name" validate:"required"`
 	Score *float32 `json:"score" validate:"required"`
+	Seed  int      `json:"seed,omitempty"`
 }
 
 // Struct containing all competing teams, their scores, and status of the game
