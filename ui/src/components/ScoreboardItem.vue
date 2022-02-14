@@ -12,7 +12,8 @@
     <div>
       <table id="scoreboard-teams" class="secondary-halo-font">
         <tr v-for="(team, index) in data.teams" :key=index>
-          <td class="team-name">{{ team.name }}</td>
+          <td v-if="team.seed" class="team-name">{{ `[${team.seed}] ${team.name}` }}</td>
+          <td v-else class="team-name">{{ team.name }}</td>
           <td class="team-score">{{ team.score }}</td>
           <td><span v-if="data.completed && is_winner(index)">✔</span></td>
         </tr>

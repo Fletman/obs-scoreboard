@@ -5,6 +5,7 @@ import ScoreFeaturedPage from './pages/ScoreFeaturedPage';
 import ScoreViewerPage from './pages/ScoreViewerPage.vue';
 import ScoreEditorPage from './pages/ScoreEditorPage.vue';
 import BracketListPage from './pages/BracketListPage.vue';
+import BracketViewPage from './pages/BracketViewPage.vue';
 import BracketEditPage from './pages/BracketEditPage.vue';
 
 const routes = [
@@ -13,6 +14,7 @@ const routes = [
     { path: '/scores/:id/view', component: ScoreViewerPage },
     { path: '/scores/:id/edit', component: ScoreEditorPage },
     { path: '/brackets', component: BracketListPage },
+    { path: '/brackets/:id/view', component: BracketViewPage},
     { path: '/brackets/:id/edit', component: BracketEditPage }
 ];
 const router = createRouter({

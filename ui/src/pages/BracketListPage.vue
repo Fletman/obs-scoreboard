@@ -10,7 +10,7 @@
       <div id="bracket-list" class="secondary-halo-font">
         <div style="margin-bottom:5%; grid-template-columns:10% 75% 15%" class="bracket-list-row">
           <input type="button" class="halo-button-input" value="↻" v-on:click="load_brackets"/>
-          <input type="text" id="bracket-search-input" placeholder="Search for a bracket" v-model="search_id"/>
+          <input type="text" id="bracket-search-input" class="secondary-halo-font" placeholder="Search for a bracket" v-model="search_id"/>
           <input type="button" class="halo-button-input secondary-halo-font" value="New"/>
         </div>
         <div id="bracket-list-scrollable">
