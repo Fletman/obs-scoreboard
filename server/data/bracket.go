@@ -82,13 +82,19 @@ func checkForBye(seed int, pool_size int) int {
 }
 
 // Translate a seed to a team name
-func getSeedNames(seed_names []string, seeds []int) []string {
-	names := make([]string, len(seeds))
+func getSeedNames(seed_names []string, seeds []int) []map[string]interface{} {
+	names := make([]map[string]interface{}, len(seeds))
 	for i, s := range seeds {
 		if s > 0 {
-			names[i] = fmt.Sprintf("[%d] %s", s, seed_names[s-1])
+			names[i] = map[string]interface{}{
+				"name": seed_names[s-1],
+				"seed": s,
+			}
 		} else {
-			names[i] = "Bye" // NOTE: byes are currently filtered out so this isn't used
+			names[i] = map[string]interface{}{
+				"name": "Bye",
+				"seed": 0,
+			}
 		}
 	}
 	return names
@@ -96,13 +102,13 @@ func getSeedNames(seed_names []string, seeds []int) []string {
 
 // Generate first-round seeded matchups, including first-round byes
 // TODO: currently only functional for match sizes of 2
-func getStartingMatches(bdef BracketDef, c constraints) [][]string {
+func getStartingMatches(bdef BracketDef, c constraints) [][]map[string]interface{} {
 	if c.PoolSize < bdef.MatchSize {
 		matchup := make([]string, c.PoolSize)
 		for i, t := range bdef.Teams {
 			matchup[i] = t
 		}
-		return [][]string{matchup}
+		return [][]map[string]interface{}{}
 	}
 
 	seed_matchups := [][]int{{1, 2}} // start from final matchup, featuring 1 vs 2 seed
@@ -132,7 +138,7 @@ func getStartingMatches(bdef BracketDef, c constraints) [][]string {
 		seed_matchups = round_matchups
 	}
 
-	team_matchups := make([][]string, len(seed_matchups))
+	team_matchups := make([][]map[string]interface{}, len(seed_matchups))
 	for i, sm := range seed_matchups {
 		team_matchups[i] = getSeedNames(bdef.Teams, sm)
 	}
@@ -178,9 +184,13 @@ func GenerateBracket(bdef BracketDef) Bracket {
 			if i == 0 {
 				// initialize first round matches
 				sb.Teams = make([]Score, len(starting_matches[j]))
-				for k, team_name := range starting_matches[j] {
+				for k, team := range starting_matches[j] {
 					var s float32 = 0
-					sb.Teams[k] = Score{Name: team_name, Score: &s}
+					sb.Teams[k] = Score{
+						Name:  team["name"].(string),
+						Seed:  team["seed"].(int),
+						Score: &s,
+					}
 				}
 				is_bye := len(sb.Teams) < bdef.MatchSize
 				sb.Completed = &is_bye
