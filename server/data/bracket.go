@@ -20,15 +20,15 @@ type Round struct {
 	MatchIds []string `json:"match-ids"`
 }
 
-type Bracket struct {
-	Id     string  `json:"bracket-id"`
-	Rounds []Round `json:"rounds"`
-}
-
 type BracketDef struct {
 	Id        string   `json:"bracket-id"`                     // Bracket ID
 	MatchSize int      `json:"match-size" validate:"required"` // number of players per match
 	Teams     []string `json:"teams"`                          // bracket participants ordered by seeding
+}
+
+type Bracket struct {
+	Data   BracketDef `json:"bracket-data"`
+	Rounds []Round    `json:"rounds"`
 }
 
 var brackets map[string]Bracket = make(map[string]Bracket)
@@ -119,21 +119,12 @@ func getStartingMatches(bdef BracketDef, c constraints) [][]map[string]interface
 			//upper half draw
 			seed_1 := checkForBye(sm[0], c.PoolSize)
 			seed_2 := checkForBye(max_seed-sm[0], c.PoolSize)
-			if seed_2 == -1 {
-				round_matchups = append(round_matchups, []int{seed_1})
-			} else {
-				round_matchups = append(round_matchups, []int{seed_1, seed_2})
-			}
+			round_matchups = append(round_matchups, []int{seed_1, seed_2})
 
 			// bottom half draw
 			seed_1 = checkForBye(max_seed-sm[1], c.PoolSize)
 			seed_2 = checkForBye(sm[1], c.PoolSize)
-			if seed_1 == -1 {
-				round_matchups = append(round_matchups, []int{seed_2})
-			} else {
-				round_matchups = append(round_matchups, []int{seed_1, seed_2})
-			}
-
+			round_matchups = append(round_matchups, []int{seed_1, seed_2})
 		}
 		seed_matchups = round_matchups
 	}
@@ -152,7 +143,7 @@ func ListBrackets() []string {
 	bracket_ids := make([]string, len(brackets))
 	i := 0
 	for _, b := range brackets {
-		bracket_ids[i] = b.Id
+		bracket_ids[i] = b.Data.Id
 		i++
 	}
 	sort.Strings(bracket_ids)
@@ -171,7 +162,7 @@ func GetBracket(bracket_id string) (bracket Bracket, ok bool) {
 func GenerateBracket(bdef BracketDef) Bracket {
 	c := getConstraints(bdef.Teams, bdef.MatchSize)
 
-	bracket := Bracket{Id: bdef.Id, Rounds: make([]Round, c.RoundCount)}
+	bracket := Bracket{Data: bdef, Rounds: make([]Round, c.RoundCount)}
 
 	starting_matches := getStartingMatches(bdef, c)
 
@@ -192,7 +183,13 @@ func GenerateBracket(bdef BracketDef) Bracket {
 						Score: &s,
 					}
 				}
-				is_bye := len(sb.Teams) < bdef.MatchSize
+				is_bye := false
+				for _, team := range sb.Teams {
+					if team.Seed == 0 {
+						is_bye = true
+						break
+					}
+				}
 				sb.Completed = &is_bye
 			} else {
 				sb.Teams = make([]Score, bdef.MatchSize)
