@@ -3,7 +3,7 @@
     <ScoreboardStatic
       v-if="active_scoreboard"
       class="scoreboard"
-      :score-id="score_id"
+      :layout="score_layout"
       :data="active_scoreboard"/>
   </div>
 </template>
@@ -56,6 +56,12 @@ export default {
   computed: {
     score_id() {
       return this.$route.params.id;
+    },
+
+    score_layout() {
+      const query_strs = new URLSearchParams(window.location.search);
+      const layout = query_strs.get('layout');
+      return layout ? layout.toLowerCase() : 'default';
     }
   }
 }

@@ -3,7 +3,7 @@
     <ScoreboardStatic
       v-if="active_scoreboard"
       class="scoreboard"
-      :score-id="score_id"
+      :layout="score_layout"
       :data="active_scoreboard"/>
   </div>
 </template>
@@ -42,12 +42,20 @@ export default {
     }
   },
 
+  computed: {
+    score_layout() {
+      const query_strs = new URLSearchParams(window.location.search);
+      const layout = query_strs.get('layout');
+      return layout ? layout.toLowerCase() : 'default';
+    }
+  },
+
   beforeMount() {
     this.load_featured_scoreboard();
 
     this.listener.on('message', (event) => {
       const score = JSON.parse(event.data);
-      if(score.featured && this.active_scoreboard) {
+      if(score.featured) {
         this.active_scoreboard = score;
       }
     });

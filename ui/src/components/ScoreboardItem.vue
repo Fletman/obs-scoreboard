@@ -53,7 +53,8 @@ export default {
         index: -1
       };
       this.data.teams.forEach((team, index) => {
-        if(team.score > winner.score) {
+        if(team.score > winner.score && team.name !== "Bye") {
+          console.log(team.seed);
           winner.score = team.score;
           winner.index = index;
         }
@@ -102,7 +103,7 @@ export default {
   }
 
   #score-id {
-    font-size: calc(1vh + 1vw);
+    font-size: calc(0.875vh + 0.875vw);
     color: white;
     text-decoration: none;
   }
@@ -123,7 +124,7 @@ export default {
       overflow-x: auto;
       background-color: #172030;
       color: white;
-      font-size: calc(0.75vh + 0.75vw);
+      font-size: calc(0.625vh + 0.625vw);
       filter: drop-shadow(1px 1px 5px gray);
   }
 
