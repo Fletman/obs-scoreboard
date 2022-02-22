@@ -9,6 +9,7 @@ import BracketViewPage from './pages/BracketViewPage.vue';
 import BracketEditPage from './pages/BracketEditPage.vue';
 
 const routes = [
+    { path: '/', redirect: '/scores' },
     { path: '/scores', component: ScoreGridPage },
     { path: '/scores/featured', component: ScoreFeaturedPage },
     { path: '/scores/:id/view', component: ScoreViewerPage },

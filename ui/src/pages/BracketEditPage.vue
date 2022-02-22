@@ -112,7 +112,7 @@ export default {
   }
 
   .round-col .scoreboard {
-    margin: 5% 0px;
+    margin: auto;
     padding: 0px;
     width: 100%;
   }

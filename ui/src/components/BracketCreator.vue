@@ -1,8 +1,8 @@
 <template>
   <div>
     <form v-on:submit.prevent="create_bracket">
-      <input type="text" placeholder="Enter bracket name" v-model="bracket_name"/>
-      <div v-for="(seed, index) in seeds" :key="index">
+      <input id="bracket-name-input" type="text" placeholder="Enter bracket name" v-model="bracket_name"/>
+      <div class="bracket-seed-input" v-for="(seed, index) in seeds" :key="index">
         <span>[{{ index+1 }}]</span>
         <input type="text" placeholder="Enter name" v-model="seed.name"/>
         <input type="button" value="X" v-on:click="remove_seed(index)"/>
@@ -17,11 +17,7 @@ export default {
   name: 'BracketEditor',
 
   props: {
-    visible: {
-      type: Boolean,
-      required: true,
-      default: false
-    }
+    
   },
 
   data() {
@@ -56,4 +52,13 @@ export default {
 <style>
   @import '../css/main.css';
   @import '../css/fonts.css';
+
+  #bracket-name-input {
+    display: block;
+  }
+
+  .bracket-seed-input {
+    display: grid;
+    grid-template-columns: 5% 90% 5%;
+  }
 </style>
