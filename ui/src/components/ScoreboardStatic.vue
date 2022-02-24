@@ -6,12 +6,14 @@
         <div>{{ team.score }}</div>
       </div>
     </div>
-    <div id="team-list" v-else>
-      <div :style="team_style(index)" v-for="(team, index) in data.teams" :key=index>
-        <div v-if="index % 2 === 0">{{ team.name }}</div>
+    <div id="team-list" v-else-if="['banner'].includes(layout)">
+      <div :style="team_style(index)" v-for="(team, index) in data.teams" :key=index :set="is_even = index % 2 === 0">
+        <div v-if="is_even"></div>
+        <div v-if="is_even">{{ team.name }}</div>
         <div v-else>{{ team.score }}</div>
-        <div v-if="index % 2 === 0">{{ team.score }}</div>
+        <div v-if="is_even">{{ team.score }}</div>
         <div v-else>{{ team.name }}</div>
+        <div v-if="!is_even"></div>
       </div>
     </div>
   </div>
@@ -63,15 +65,22 @@ export default {
             break;
           case 'banner':
             border_f = () => 'border: none';
-            display_f = (i) => {
-              const display_cols = i % 2 === 0 ? '70% 30%;' : '30% 70%;';
-              return `display: grid; grid-template-columns: ${display_cols}`;
-            };
+            display_f = () => 'display: grid; grid-template-columns:30% 40% 30%';
             bg_f = (i) => {
               const gradient = i % 2 === 0 ?
-                { direction: 'right,', color_1: 'rgba(128, 0, 0, 0.875),'.repeat(4), color_2: 'rgba(255, 255, 255, 0)' }:
-                { direction: 'left,', color_1: 'rgba(0, 0, 128, 0.875),'.repeat(4), color_2: 'rgba(255, 255, 255, 0)' };
-              return `background-image: linear-gradient(to ${gradient.direction} ${gradient.color_1} ${gradient.color_2})`;
+                {
+                  direction: 'right,',
+                  color_0: 'rgba(255, 255, 255, 0),',
+                  color_1: 'rgba(128, 0, 0, 0.875),'.repeat(3),
+                  color_2: 'rgba(255, 255, 255, 0)'
+                }:
+                {
+                  direction: 'left,',
+                  color_0: 'rgba(255, 255, 255, 0),',
+                  color_1: 'rgba(0, 0, 128, 0.875),'.repeat(3),
+                  color_2: 'rgba(255, 255, 255, 0)'
+                };
+              return `background-image: linear-gradient(to ${gradient.direction} ${gradient.color_0} ${gradient.color_1} ${gradient.color_2})`;
             }
             break;
           default:
