@@ -82,7 +82,7 @@ module.exports = class ScoreboardAPI {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(scoreboard)
-        }
+        };
         const response = await fetch(url, params);
         if(response.status != 200) {
             const body = await response.json();
@@ -129,6 +129,30 @@ module.exports = class ScoreboardAPI {
     async get_bracket(id) {
         const url = `${this.host}/brackets/${id}`;
         const params = { method: 'GET' };
+        const response = await fetch(url, params);
+        const body = await response.json();
+        if(response.status != 200) {
+            throw(body.message);
+        } else {
+            return body;
+        }
+    }
+
+    /**
+     * Create a new bracket
+     * @param {string} id ID of bracket
+     * @param {string[]} seeds Array of team names, prdered by seeding
+     * @param {Number} match_size Size of each match, defaults to 2
+     * @returns {Promise<Object>}
+     */
+    async create_bracket(id, seeds, match_size = 2) {
+        const url = `${this.host}/brackets`;
+        const request = { 'bracket-id': id, 'match-size': match_size, teams: seeds };
+        const params = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request)
+        };
         const response = await fetch(url, params);
         const body = await response.json();
         if(response.status != 200) {
