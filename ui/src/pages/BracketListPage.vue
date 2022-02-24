@@ -15,7 +15,7 @@
             <input type="button" class="halo-button-input secondary-halo-font" value="New" v-on:click="toggle_creator"/>
           </div>
           <div id="bracket-creator" class="bracket-list-item" v-show="show_creator">
-            <BracketCreator/>
+            <BracketCreator v-on:bracket-created="load_brackets"/>
           </div>
         </div>
         <div id="bracket-list-scrollable">
