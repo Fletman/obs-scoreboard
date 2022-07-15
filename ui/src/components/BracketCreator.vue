@@ -24,7 +24,7 @@ export default {
 
   data() {
     return {
-      handler: new ScoreboardAPI(),
+      handler: ScoreboardAPI.get_api_handler(),
 
       bracket_name: "",
 
@@ -36,6 +36,7 @@ export default {
     reset_fields() {
       this.bracket_name = "";
       this.seeds = []; 
+      this.handler.list_scoreboards();
     },
 
     add_seed() {

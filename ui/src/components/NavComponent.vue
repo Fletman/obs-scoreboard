@@ -4,7 +4,7 @@
       <div class="nav-link secondary-halo-font">Scores</div>
     </router-link>
     <router-link class="link-style" to="/brackets">
-      <div class="nav-link secondary-halo-font">Brackets</div>
+      <div class="nav-link secondary-halo-font">Brackets (Experimental)</div>
     </router-link>
   </div>
 </template>

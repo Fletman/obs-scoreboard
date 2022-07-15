@@ -1,15 +1,19 @@
-
 /**
  * Class for handling live score updates
  */
  class ScoreListener {
     /**
      * @param {string} host WebSocket endpoint to connect to
-     * @param {string?} jwt Token to authenticate with host
-     * @todo Server/client auth
+     * @todo Server/client auth?
      */
-    constructor(host = "ws://localhost:8080/live") {
-        this.host = host;
+    constructor(host = null) {
+        if(host) {
+            this.host = host;
+        } else if(process.env.VUE_APP_SOCKET_HOST) {
+            this.host = process.env.VUE_APP_SOCKET_HOST;
+        } else {
+            this.host = "ws://localhost:8080/live";
+        }
         this.event_handlers = {};
     }
 
