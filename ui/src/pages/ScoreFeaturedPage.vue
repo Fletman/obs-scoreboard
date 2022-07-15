@@ -44,8 +44,10 @@ export default {
 
   computed: {
     score_layout() {
-      const query_strs = new URLSearchParams(window.location.search);
-      const layout = query_strs.get('layout');
+      const query_strs = window.location.href.substring(window.location.href.indexOf('?'));
+      const query_params = new URLSearchParams(query_strs);
+      const layout = query_params.get('layout');
+      console.log(layout);
       return layout ? layout.toLowerCase() : 'default';
     }
   },

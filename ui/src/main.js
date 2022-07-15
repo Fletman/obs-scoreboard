@@ -1,5 +1,5 @@
 import { createApp } from 'vue/dist/vue.esm-bundler.js';
-import { createRouter, /*createWebHashHistory,*/ createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory /*createWebHistory*/ } from 'vue-router';
 import ScoreGridPage from './pages/ScoreGridPage.vue'
 import ScoreFeaturedPage from './pages/ScoreFeaturedPage';
 import ScoreViewerPage from './pages/ScoreViewerPage.vue';
@@ -19,7 +19,7 @@ const routes = [
     { path: '/brackets/:id/edit', component: BracketEditPage }
 ];
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes
 });
 
