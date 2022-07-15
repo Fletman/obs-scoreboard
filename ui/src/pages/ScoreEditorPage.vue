@@ -29,7 +29,7 @@ export default {
     return {
       listener: ScoreListener.get_socket_handler(),
 
-      handler: new ScoreboardAPI(),
+      handler: ScoreboardAPI.get_api_handler(),
 
       active_scoreboard: null
     }

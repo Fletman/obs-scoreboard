@@ -1,14 +1,19 @@
 /**
  * Class for handling HTTP interaction with Scoreboard API
  */
-module.exports = class ScoreboardAPI {
+class ScoreboardAPI {
     /**
-     * @param {string} host HTTP endpoint hosting scoreboard API
-     * @param {string?} jwt Token to authenticate with host
-     * @todo Server/client auth
+     * @param {string?} host HTTP endpoint hosting scoreboard API
+     * @todo Server/client auth?
      */
-    constructor(host = "http://localhost:8080") {
-        this.host = host;
+    constructor(host = null) {
+        if(host) {
+            this.host = host;
+        } else if(process.env.VUE_APP_API_HOST) {
+            this.host = process.env.VUE_APP_API_HOST;
+        } else {
+            this.host = "http://localhost:8080";
+        }
     }
 
     /**
@@ -160,5 +165,18 @@ module.exports = class ScoreboardAPI {
         } else {
             return body;
         }
+    }
+}
+
+let handler;
+module.exports = {
+    /**
+     * @returns {ScoreboardAPI} API handler
+     */
+    get_api_handler() {
+        if(!handler) {
+            handler = new ScoreboardAPI();
+        }
+        return handler;
     }
 }

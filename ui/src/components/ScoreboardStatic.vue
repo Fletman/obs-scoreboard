@@ -1,12 +1,12 @@
 <template>
   <div class="scoreboard-focused primary-halo-font">
-    <div id="team-list" v-if="['default'].includes(layout)">
+    <div id="team-list" v-if="layout==='default'">
       <div :style="team_style(index)" v-for="(team, index) in data.teams" :key=index>
         <div>{{ team.name }}</div>
         <div>{{ team.score }}</div>
       </div>
     </div>
-    <div id="team-list" v-else-if="['banner'].includes(layout)">
+    <div id="team-list" v-else-if="layout==='banner'">
       <div :style="team_style(index)" v-for="(team, index) in data.teams" :key=index :set="is_even = index % 2 === 0">
         <div v-if="is_even"></div>
         <div v-if="is_even">{{ team.name }}</div>
@@ -14,6 +14,12 @@
         <div v-if="is_even">{{ team.score }}</div>
         <div v-else>{{ team.name }}</div>
         <div v-if="!is_even"></div>
+      </div>
+    </div>
+    <div v-else-if="layout==='block'">
+      <div :style="team_style(index)" v-for="(team, index) in data.teams" :key=index :set="is_even = index % 2 === 0">
+        <div>{{ team.name }}</div>
+        <div>{{ team.score }}</div>
       </div>
     </div>
   </div>
@@ -45,26 +51,20 @@ export default {
 
   methods: {
       team_style(index) {
-        let width_f;
-        let border_f;
-        let display_f;
-        let bg_f;
-
-        width_f = () => {
+        let width_f = () => {
           const width_pct = this.data.teams.length != 0 ?
             Math.floor(100/this.data.teams.length):
             0;
           return `width: ${width_pct}%; font-size: ${width_pct/20}vw`;
         };
+        let border_f = () => 'border: none';
+        let display_f = () => 'display: grid';
+        let bg_f = () => 'background-color:none';
 
         switch(this.layout) {
           case 'default':
-            border_f = () => 'border: none';
-            display_f = () => 'display: grid';
-            bg_f = () => 'background-color:none';
             break;
           case 'banner':
-            border_f = () => 'border: none';
             display_f = () => 'display: grid; grid-template-columns:30% 40% 30%';
             bg_f = (i) => {
               const gradient = i % 2 === 0 ?
@@ -82,6 +82,12 @@ export default {
                 };
               return `background-image: linear-gradient(to ${gradient.direction} ${gradient.color_0} ${gradient.color_1} ${gradient.color_2})`;
             }
+            break;
+          case 'block':
+            width_f = () => `width:${100/(this.data.teams.length * 4)}%; font-size:2em;`;
+            border_f = () => 'border: solid 2px rgba(128, 128, 128, 0.5)';
+            display_f = (i) => i % 2 === 0 ? 'display:inline-block; float:left; margin-left:1%' : 'display:inline-block; float:right; margin-right:1%';
+            bg_f = (i) => i % 2 === 0 ? 'background-color:rgba(128, 0, 0, 0.875)' : 'background-color:rgba(0, 0, 128, 0.875)';
             break;
           default:
             throw(`Unknown layout ID: ${this.layout}`);

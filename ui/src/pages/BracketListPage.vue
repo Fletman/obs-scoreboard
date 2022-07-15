@@ -47,7 +47,7 @@ export default {
 
   data() {
     return {
-      handler: new ScoreboardAPI(),
+      handler: ScoreboardAPI.get_api_handler(),
 
       search_id: "",
 
